@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "@/state/hook";
 import {
   addComment,
   addReplyOnComment,
+  dislike,
   getprojectDetailsById,
   likeOnComment,
   likeOnReply,
@@ -147,6 +148,20 @@ const ProjectDetailsPage: React.FC = () => {
         );
       }
     );
+    socket.on(
+      "dislike-update",
+      ({ userId, projectId, commentId, dislikes }) => {
+        if (projectId === id) {
+          setComments((prevComments) =>
+            prevComments.map((comment) => {
+              return commentId === comment._id
+                ? { ...comment, dislikes }
+                : comment;
+            })
+          );
+        }
+      }
+    );
   }, []);
   useEffect(() => {
     if (projectDetails && projectDetails.comments.length > 0) {
@@ -230,7 +245,21 @@ const ProjectDetailsPage: React.FC = () => {
   };
 
   const handleDislike = async (commentId: string) => {
-    // Implement dislike functionality
+    if (id) {
+      dispatch(dislike({ commentId, projectId: id }))
+        .unwrap()
+        .then(() => {
+          toast({
+            title: "disliked successfully",
+          });
+        })
+        .catch((error) => {
+          toast({
+            title: error,
+            variant: "destructive",
+          });
+        });
+    }
   };
 
   const handleEdit = async (commentId: string, newText: string) => {

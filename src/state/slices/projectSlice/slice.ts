@@ -108,17 +108,16 @@ export const likeOnReply = createAsyncThunk(
       if (err.response && err.response.data && err.response.data.message) {
         return rejectWithValue(err.response.data.message);
       }
-      return rejectWithValue("Failed to like the reply. Please try again later.");
+      return rejectWithValue(
+        "Failed to like the reply. Please try again later."
+      );
     }
   }
 );
 export const likeOnComment = createAsyncThunk(
   "project/likeOnComment",
   async (
-    {
-      projectId,
-      commentId,
-    }: { projectId: string; commentId: string },
+    { projectId, commentId }: { projectId: string; commentId: string },
     { rejectWithValue }
   ) => {
     try {
@@ -135,11 +134,38 @@ export const likeOnComment = createAsyncThunk(
       if (err.response && err.response.data && err.response.data.message) {
         return rejectWithValue(err.response.data.message);
       }
-      return rejectWithValue("Failed to like the comment. Please try again later.");
+      return rejectWithValue(
+        "Failed to like the comment. Please try again later."
+      );
     }
   }
 );
-
+export const dislike = createAsyncThunk(
+  "project/handleDislike",
+  async (
+    { projectId, commentId }: { commentId: string; projectId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.post(
+        `/project/handledislike/${projectId}/${commentId}`,
+        {},
+        {
+          withCredentials: true, // Assuming we need cookies for authentication
+        }
+      );
+      return response.data; // Assuming the response contains updated comment data
+    } catch (error) {
+      const err = error as { response: { data: { message: string } } };
+      if (err.response && err.response.data && err.response.data.message) {
+        return rejectWithValue(err.response.data.message);
+      }
+      return rejectWithValue(
+        "Failed to toggle dislike. Please try again later."
+      );
+    }
+  }
+);
 const projectSlice = createSlice({
   name: "project",
   initialState,
