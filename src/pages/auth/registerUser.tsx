@@ -70,6 +70,7 @@ const RegisterUser: React.FC = () => {
       .unwrap()
       .then(() => {
         toast({
+            className:'bg-black',
           title: "Registration Successful",
           description: "You've been automatically logged in. Welcome!",
         });
