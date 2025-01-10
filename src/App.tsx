@@ -2,6 +2,8 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import HomePage from "./pages/Home";
 import Navbar from "./pages/Navbar";
+import Projects from "./pages/projects/main";
+import Details from "./pages/projects/details";
 // import Projects from "./pages/projects";
 const App: React.FC = () => {
   return (
@@ -9,7 +11,9 @@ const App: React.FC = () => {
     <Navbar/>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        {/* <Route path="/projects" element={<Projects />} /> */}
+
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/details/:id" element={<Details/>}/>
       </Routes>
   </>
   );
