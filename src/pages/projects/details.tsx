@@ -166,7 +166,7 @@ const ProjectDetailsPage: React.FC = () => {
             <p className="mt-2 text-gray-300">{comment.comment}</p>
             <div className="mt-4 flex items-center gap-4">
               <Button
-                variant="ghost"
+                variant={null}
                 size="sm"
                 className="flex items-center gap-1 text-gray-400 hover:text-white"
                 onClick={() => handleLike(comment._id)}
@@ -175,7 +175,7 @@ const ProjectDetailsPage: React.FC = () => {
                 <span>{comment.likes.length}</span>
               </Button>
               <Button
-                variant="ghost"
+                variant={null}
                 size="sm"
                 className="flex items-center gap-1 text-gray-400 hover:text-white"
                 onClick={() => handleDislike(comment._id)}
@@ -184,7 +184,7 @@ const ProjectDetailsPage: React.FC = () => {
                 <span>{comment.dislikes.length}</span>
               </Button>
               <Button
-                variant="ghost"
+                variant={null}
                 size="sm"
                 className="flex items-center gap-1 text-gray-400 hover:text-white"
                 onClick={() => setReplyingTo(comment._id)}
@@ -236,7 +236,7 @@ const ProjectDetailsPage: React.FC = () => {
                       </div>
                       <p className="mt-1 text-gray-300">{reply.comment}</p>
                       <Button
-                        variant="ghost"
+                        variant={null}
                         size="sm"
                         className="mt-2 flex items-center gap-1 text-gray-400 hover:text-white"
                       >
