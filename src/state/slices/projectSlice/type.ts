@@ -4,6 +4,8 @@ export interface InitialState {
   isLoading: boolean;
   projects: Project[];
   projectDetails: ProjectDetails | null;
+  realTimeLoading:boolean;
+  
 }
 export interface TeamMember {
   name: string;

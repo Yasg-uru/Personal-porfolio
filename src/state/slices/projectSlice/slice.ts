@@ -6,6 +6,7 @@ const initialState: InitialState = {
   isLoading: false,
   projects: [],
   projectDetails: null,
+  realTimeLoading: false,
 };
 interface ValidationError {
   message: string;
@@ -38,6 +39,25 @@ export const getprojectDetailsById = createAsyncThunk(
     } catch (error) {}
   }
 );
+export const addComment = createAsyncThunk(
+  "project/addComment",
+  async (
+    data: { projectId: string; comment: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.post(`/project/addcomment`, data, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      const err: axiosError = error as axiosError;
+      if (err.response && err.response.data && err.response.data.message)
+        return rejectWithValue(err.response.data.message);
+      return rejectWithValue("failed to load the projects");
+    }
+  }
+);
 const projectSlice = createSlice({
   name: "project",
   initialState,
@@ -63,6 +83,16 @@ const projectSlice = createSlice({
       })
       .addCase(getprojectDetailsById.rejected, (state) => {
         state.isLoading = false;
+      })
+      .addCase(addComment.fulfilled, (state) => {
+      
+        state.realTimeLoading = false;
+      })
+      .addCase(addComment.pending, (state) => {
+        state.realTimeLoading = true;
+      })
+      .addCase(addComment.rejected, (state) => {
+        state.realTimeLoading = false;
       });
   },
 });

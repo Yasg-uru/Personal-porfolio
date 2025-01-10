@@ -4,7 +4,10 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAppDispatch, useAppSelector } from "@/state/hook";
-import { getprojectDetailsById } from "@/state/slices/projectSlice/slice";
+import {
+  addComment,
+  getprojectDetailsById,
+} from "@/state/slices/projectSlice/slice";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -45,7 +48,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Comment, ProjectDetails } from "@/state/slices/projectSlice/details";
-
+import { socket } from "@/App";
 const ProjectDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
@@ -54,9 +57,12 @@ const ProjectDetailsPage: React.FC = () => {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
 
-  const { projectDetails, isLoading } = useAppSelector(
+  const { projectDetails, isLoading, realTimeLoading } = useAppSelector(
     (state) => state.project
   );
+
+  const [Comments, setComments] = useState<Comment[]>([]);
+
 
   useEffect(() => {
     if (id) {
@@ -75,9 +81,34 @@ const ProjectDetailsPage: React.FC = () => {
         });
     }
   }, [id, dispatch, toast]);
-
-  const handleComment = async () => {
-    // Implement comment submission
+  useEffect(() => {
+    socket.on("newComment", ({ projectId, comment }) => {
+      if (projectId === id) {
+        setComments((prevComment) => [...prevComment, comment]);
+      }
+    });
+  }, []);
+  useEffect(() => {
+    if (projectDetails && projectDetails.comments.length > 0) {
+      setComments(projectDetails.comments);
+    }
+  }, [projectDetails]);
+  const handleComment = () => {
+    if (id) {
+      dispatch(addComment({ comment: newComment, projectId: id }))
+        .unwrap()
+        .then(() => {
+          toast({
+            title: "comment added successfully",
+          });
+        })
+        .catch((error) => {
+          toast({
+            title: error,
+            variant: "destructive",
+          });
+        });
+    }
   };
 
   const handleReply = async (commentId: string) => {
@@ -99,9 +130,8 @@ const ProjectDetailsPage: React.FC = () => {
   const handleDelete = async (commentId: string) => {
     // Implement delete functionality
   };
-
   if (isLoading) {
-    return (
+      return (
       <div className="min-h-screen bg-black p-8">
         <div className="max-w-6xl mx-auto space-y-8">
           <Skeleton className="h-8 w-1/3" />
@@ -110,9 +140,8 @@ const ProjectDetailsPage: React.FC = () => {
         </div>
       </div>
     );
-  }
-
-  if (!projectDetails) return null;
+}
+if(!projectDetails) return null;
 
   const CommentComponent: React.FC<{ comment: Comment }> = ({ comment }) => (
     <Card className="bg-black border-gray-800 mb-4">
@@ -519,8 +548,8 @@ const ProjectDetailsPage: React.FC = () => {
               </CardContent>
             </Card>
             <div className="space-y-4">
-              {projectDetails.comments.map((comment) => (
-                <CommentComponent key={comment._id} comment={comment} />
+              {Comments.map((comment,index) => (
+                <CommentComponent key={index} comment={comment} />
               ))}
             </div>
           </TabsContent>
