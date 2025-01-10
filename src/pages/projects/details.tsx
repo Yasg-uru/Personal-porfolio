@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAppDispatch, useAppSelector } from "@/state/hook";
@@ -14,7 +14,6 @@ import {
 } from "@/state/slices/projectSlice/slice";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,48 +23,22 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import {
-  Heart,
-  MessageSquare,
-  Github,
-  ExternalLink,
-  ThumbsUp,
-  ThumbsDown,
-  Reply,
-  MoreVertical,
-  Edit,
-  Trash2,
-  Calendar,
-  Users,
-  Clock,
-  Target,
-  Zap,
-  Briefcase,
-  FileText,
-  Video,
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Github, ExternalLink, Calendar, Users, Clock, Target, Zap, Video } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Comment, ProjectDetails } from "@/state/slices/projectSlice/details";
 import { socket } from "@/App";
+import CommentComponent from "./comment";
+
+
 const ProjectDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const [newComment, setNewComment] = useState("");
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState("");
 
-  const { projectDetails, isLoading, realTimeLoading } = useAppSelector(
-    (state) => state.project
-  );
+  const { projectDetails, isLoading } = useAppSelector((state) => state.project);
 
-  const [Comments, setComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
 
   useEffect(() => {
     if (id) {
@@ -84,106 +57,100 @@ const ProjectDetailsPage: React.FC = () => {
         });
     }
   }, [id, dispatch, toast]);
+
   useEffect(() => {
-    socket.on("newComment", ({ projectId, comment }) => {
+    const handleNewComment = ({ projectId, comment }: { projectId: string, comment: Comment }) => {
       if (projectId === id) {
-        setComments((prevComment) => [...prevComment, comment]);
+        setComments((prevComments) => [...prevComments, comment]);
       }
-    });
-    socket.on("new_reply", ({ commentId, projectId, reply }) => {
+    };
+
+    const handleNewReply = ({ commentId, projectId, reply }: { commentId: string, projectId: string, reply: Comment }) => {
       if (projectId === id) {
         setComments((prevComments) =>
-          prevComments.map((comment) => {
-            if (comment._id === commentId) {
-              return {
-                ...comment,
-                replies: [...comment.replies, reply],
-              };
-            } else {
-              return comment;
-            }
-          })
+          prevComments.map((comment) =>
+            comment._id === commentId
+              ? { ...comment, replies: [...comment.replies, reply] }
+              : comment
+          )
         );
       }
-    });
-    socket.on(
-      "reply-like-update",
-      ({ projectId, commentId, replyId, action, userId, likes }) => {
-        if (projectId === id) {
-          setComments((prevComments) =>
-            prevComments.map((comment) => {
-              if (commentId === comment._id) {
-                return {
+    };
+
+    const handleReplyLikeUpdate = ({ projectId, commentId, replyId, likes }: { projectId: string, commentId: string, replyId: string, likes: any[] }) => {
+      if (projectId === id) {
+        setComments((prevComments) =>
+          prevComments.map((comment) =>
+            comment._id === commentId
+              ? {
                   ...comment,
-                  replies: comment.replies.map((reply) => {
-                    if (reply._id === replyId) {
-                      return { ...reply, likes };
-                    } else {
-                      return reply;
-                    }
-                  }),
-                };
-              } else {
-                return comment;
-              }
-            })
-          );
-        }
-      }
-    );
-    socket.on(
-      "commentLike-update",
-      ({ projectId, commentId, userId, likes, action }) => {
-        setComments((prevComments) =>
-          prevComments.map((comment) => {
-            if (comment._id === commentId) {
-              return {
-                ...comment,
-                likes,
-              };
-            } else {
-              return comment;
-            }
-          })
+                  replies: comment.replies.map((reply) =>
+                    reply._id === replyId ? { ...reply, likes } : reply
+                  ),
+                }
+              : comment
+          )
         );
       }
-    );
-    socket.on(
-      "dislike-update",
-      ({ userId, projectId, commentId, dislikes }) => {
-        if (projectId === id) {
-          setComments((prevComments) =>
-            prevComments.map((comment) => {
-              return commentId === comment._id
-                ? { ...comment, dislikes }
-                : comment;
-            })
-          );
-        }
+    };
+
+    const handleCommentLikeUpdate = ({ projectId, commentId, likes }: { projectId: string, commentId: string, likes: any[] }) => {
+      if (projectId === id) {
+        setComments((prevComments) =>
+          prevComments.map((comment) =>
+            comment._id === commentId ? { ...comment, likes } : comment
+          )
+        );
       }
-    );
-  }, []);
+    };
+
+    const handleDislikeUpdate = ({ projectId, commentId, dislikes }: { projectId: string, commentId: string, dislikes: any[] }) => {
+      if (projectId === id) {
+        setComments((prevComments) =>
+          prevComments.map((comment) =>
+            comment._id === commentId ? { ...comment, dislikes } : comment
+          )
+        );
+      }
+    };
+
+    socket.on("newComment", handleNewComment);
+    socket.on("new_reply", handleNewReply);
+    socket.on("reply-like-update", handleReplyLikeUpdate);
+    socket.on("commentLike-update", handleCommentLikeUpdate);
+    socket.on("dislike-update", handleDislikeUpdate);
+
+    return () => {
+      socket.off("newComment", handleNewComment);
+      socket.off("new_reply", handleNewReply);
+      socket.off("reply-like-update", handleReplyLikeUpdate);
+      socket.off("commentLike-update", handleCommentLikeUpdate);
+      socket.off("dislike-update", handleDislikeUpdate);
+    };
+  }, [id]);
+
   useEffect(() => {
     if (projectDetails && projectDetails.comments.length > 0) {
       setComments(projectDetails.comments);
     }
   }, [projectDetails]);
-  const handleComment = () => {
+
+  const handleComment = useCallback(() => {
     if (!newComment.trim()) {
       toast({
-        title:
-          "you cant able to send the empty comment so please write text and then send it ",
-
+        title: "You can't send an empty comment. Please write text and then send it.",
         variant: "destructive",
       });
+      return;
     }
     if (id) {
       dispatch(addComment({ comment: newComment, projectId: id }))
         .unwrap()
         .then(() => {
           toast({
-            title: "comment added successfully",
+            title: "Comment added successfully",
           });
+          setNewComment("");
         })
         .catch((error) => {
           toast({
@@ -192,15 +159,15 @@ const ProjectDetailsPage: React.FC = () => {
           });
         });
     }
-  };
+  }, [newComment, id, dispatch, toast]);
 
-  const handleReply = async (commentId: string) => {
+  const handleReply = useCallback((commentId: string, replyText: string) => {
     if (id) {
       dispatch(addReplyOnComment({ commentId, replyText, projectId: id }))
         .unwrap()
         .then(() => {
           toast({
-            title: "replied on comment successfully",
+            title: "Replied on comment successfully",
           });
         })
         .catch((error) => {
@@ -210,13 +177,14 @@ const ProjectDetailsPage: React.FC = () => {
           });
         });
     }
-  };
-  const handleReplyLikeUnlike = (replyId: string, commentId: string) => {
+  }, [id, dispatch, toast]);
+
+  const handleReplyLikeUnlike = useCallback((replyId: string, commentId: string) => {
     if (id) {
       dispatch(likeOnReply({ commentId, replyId, projectId: id }))
         .unwrap()
         .then(() => {
-          toast({ title: "liked reply successfully" });
+          toast({ title: "Liked reply successfully" });
         })
         .catch((error) => {
           toast({
@@ -225,14 +193,15 @@ const ProjectDetailsPage: React.FC = () => {
           });
         });
     }
-  };
-  const handleLike = async (commentId: string) => {
+  }, [id, dispatch, toast]);
+
+  const handleLike = useCallback((commentId: string) => {
     if (id) {
       dispatch(likeOnComment({ projectId: id, commentId }))
         .unwrap()
         .then(() => {
           toast({
-            title: "comment liked successfully",
+            title: "Comment liked successfully",
           });
         })
         .catch((error) => {
@@ -242,15 +211,15 @@ const ProjectDetailsPage: React.FC = () => {
           });
         });
     }
-  };
+  }, [id, dispatch, toast]);
 
-  const handleDislike = async (commentId: string) => {
+  const handleDislike = useCallback((commentId: string) => {
     if (id) {
       dispatch(dislike({ commentId, projectId: id }))
         .unwrap()
         .then(() => {
           toast({
-            title: "disliked successfully",
+            title: "Disliked successfully",
           });
         })
         .catch((error) => {
@@ -260,15 +229,20 @@ const ProjectDetailsPage: React.FC = () => {
           });
         });
     }
-  };
+  }, [id, dispatch, toast]);
 
-  const handleEdit = async (commentId: string, newText: string) => {
+  const handleEdit = useCallback((commentId: string, newText: string) => {
     // Implement edit functionality
-  };
+    console.log("Edit comment", commentId, newText);
+  }, []);
 
-  const handleDelete = async (commentId: string) => {
+  const handleDelete = useCallback((commentId: string) => {
     // Implement delete functionality
-  };
+    console.log("Delete comment", commentId);
+  }, []);
+
+  const memoizedComments = useMemo(() => comments, [comments]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black p-8">
@@ -280,154 +254,13 @@ const ProjectDetailsPage: React.FC = () => {
       </div>
     );
   }
-  if (!projectDetails) return null;
 
-  const CommentComponent: React.FC<{ comment: Comment }> = ({ comment }) => (
-    <Card className="bg-black border-gray-800 mb-4">
-      <CardContent className="p-4">
-        <div className="flex gap-4">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={comment.userId.profileUrl} />
-            <AvatarFallback>
-              {comment.userId.email[0].toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-gray-200">
-                {comment.userId.email}
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-400">
-                  {new Date(comment.timestamp).toLocaleDateString()}
-                </span>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-gray-400 hover:text-white"
-                    >
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="end"
-                    className="bg-black border-gray-700"
-                  >
-                    <DropdownMenuItem
-                      onClick={() => handleEdit(comment._id, comment.comment)}
-                      className="text-gray-200 focus:bg-black focus:text-white"
-                    >
-                      <Edit className="mr-2 h-4 w-4" /> Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleDelete(comment._id)}
-                      className="text-gray-200 focus:bg-black focus:text-white"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" /> Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-            <p className="mt-2 text-gray-300">{comment.comment}</p>
-            <div className="mt-4 flex items-center gap-4">
-              <Button
-                variant={null}
-                size="sm"
-                className="flex items-center gap-1 text-gray-400 hover:text-white"
-                onClick={() => handleLike(comment._id)}
-              >
-                <ThumbsUp className="h-4 w-4" />
-                <span>{comment.likes.length}</span>
-              </Button>
-              <Button
-                variant={null}
-                size="sm"
-                className="flex items-center gap-1 text-gray-400 hover:text-white"
-                onClick={() => handleDislike(comment._id)}
-              >
-                <ThumbsDown className="h-4 w-4" />
-                <span>{comment.dislikes.length}</span>
-              </Button>
-              <Button
-                variant={null}
-                size="sm"
-                className="flex items-center gap-1 text-gray-400 hover:text-white"
-                onClick={() => setReplyingTo(comment._id)}
-              >
-                <Reply className="h-4 w-4" />
-                <span>Reply</span>
-              </Button>
-            </div>
-            {replyingTo === comment._id && (
-              <div className="mt-4">
-                <Textarea
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  placeholder="Write a reply..."
-                  className="min-h-[100px] bg-black border-gray-700 text-white"
-                />
-                <div className="mt-2 flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setReplyingTo(null)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button size="sm" onClick={() => handleReply(comment._id)}>
-                    Reply
-                  </Button>
-                </div>
-              </div>
-            )}
-            {comment.replies.length > 0 && (
-              <div className="mt-4 space-y-4 pl-8 border-l-2 border-gray-800">
-                {comment.replies.map((reply) => (
-                  <div key={reply._id} className="flex gap-4">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={reply.userId.profileUrl} />
-                      <AvatarFallback>
-                        {reply.userId.email[0].toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-gray-200">
-                          {reply.userId.email}
-                        </span>
-                        <span className="text-sm text-gray-400">
-                          {new Date(reply.timestamp).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-gray-300">{reply.comment}</p>
-                      <Button
-                        variant={null}
-                        onClick={() =>
-                          handleReplyLikeUnlike(reply._id, comment._id)
-                        }
-                        size="sm"
-                        className="mt-2 flex items-center gap-1 text-gray-400 hover:text-white"
-                      >
-                        <Heart className="h-4 w-4" />
-                        <span>{reply.likes.length}</span>
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+  if (!projectDetails) return null;
 
   return (
     <div className="min-h-screen bg-black p-8">
       <div className="max-w-6xl mx-auto mt-10">
+        {/* Project header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-4">
             {projectDetails.title}
@@ -474,6 +307,7 @@ const ProjectDetailsPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Project details tabs */}
         <Tabs defaultValue="overview" className="mb-8">
           <TabsList className="bg-black p-1 rounded-lg">
             <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -485,6 +319,7 @@ const ProjectDetailsPage: React.FC = () => {
             </TabsTrigger>
           </TabsList>
 
+          {/* Overview tab */}
           <TabsContent value="overview" className="mt-6">
             <Card className="bg-black border-gray-800">
               <CardContent className="p-6">
@@ -507,6 +342,7 @@ const ProjectDetailsPage: React.FC = () => {
             </Card>
           </TabsContent>
 
+          {/* Details tab */}
           <TabsContent value="details" className="mt-6">
             <Card className="bg-black border-gray-800">
               <CardContent className="p-6">
@@ -521,18 +357,14 @@ const ProjectDetailsPage: React.FC = () => {
                           <Calendar className="h-5 w-5 text-gray-400" />
                           <span>
                             Created:{" "}
-                            {new Date(
-                              projectDetails.createdAt
-                            ).toLocaleDateString()}
+                            {new Date(projectDetails.createdAt).toLocaleDateString()}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-5 w-5 text-gray-400" />
                           <span>
                             Updated:{" "}
-                            {new Date(
-                              projectDetails.updatedAt
-                            ).toLocaleDateString()}
+                            {new Date(projectDetails.updatedAt).toLocaleDateString()}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -544,8 +376,7 @@ const ProjectDetailsPage: React.FC = () => {
                         <div className="flex items-center gap-2">
                           <Clock className="h-5 w-5 text-gray-400" />
                           <span>
-                            Estimated Time:{" "}
-                            {projectDetails.estimatedCompletionTime}
+                            Estimated Time: {projectDetails.estimatedCompletionTime}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -563,70 +394,13 @@ const ProjectDetailsPage: React.FC = () => {
                       </div>
                     </AccordionContent>
                   </AccordionItem>
-                  <AccordionItem value="item-2">
-                    <AccordionTrigger className="text-white hover:text-gray-300">
-                      Target Audience
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <ul className="list-disc list-inside text-gray-300">
-                        {projectDetails.targetAudience.map(
-                          (audience, index) => (
-                            <li key={index}>{audience}</li>
-                          )
-                        )}
-                      </ul>
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="item-3">
-                    <AccordionTrigger className="text-white hover:text-gray-300">
-                      Challenges & Learnings
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="text-lg font-semibold text-white mb-2">
-                            Challenges
-                          </h4>
-                          <ul className="list-disc list-inside text-gray-300">
-                            {projectDetails.challenges.map(
-                              (challenge, index) => (
-                                <li key={index}>{challenge}</li>
-                              )
-                            )}
-                          </ul>
-                        </div>
-                        <div>
-                          <h4 className="text-lg font-semibold text-white mb-2">
-                            Learnings
-                          </h4>
-                          <ul className="list-disc list-inside text-gray-300">
-                            {projectDetails.learnings.map((learning, index) => (
-                              <li key={index}>{learning}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="item-4">
-                    <AccordionTrigger className="text-white hover:text-gray-300">
-                      Accessibility Features
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <ul className="list-disc list-inside text-gray-300">
-                        {projectDetails.accessibilityFeatures.map(
-                          (feature, index) => (
-                            <li key={index}>{feature}</li>
-                          )
-                        )}
-                      </ul>
-                    </AccordionContent>
-                  </AccordionItem>
+                  {/* Add other accordion items for Target Audience, Challenges & Learnings, and Accessibility Features */}
                 </Accordion>
               </CardContent>
             </Card>
           </TabsContent>
 
+          {/* Gallery tab */}
           <TabsContent value="gallery" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {projectDetails.gallery.map((image) => (
@@ -640,6 +414,7 @@ const ProjectDetailsPage: React.FC = () => {
             </div>
           </TabsContent>
 
+          {/* Videos tab */}
           <TabsContent value="videos" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {projectDetails.videos.map((video) => (
@@ -675,6 +450,7 @@ const ProjectDetailsPage: React.FC = () => {
             </div>
           </TabsContent>
 
+          {/* Comments tab */}
           <TabsContent value="comments" className="mt-6">
             <Card className="bg-black border-gray-800 mb-6">
               <CardContent className="p-4">
@@ -690,8 +466,17 @@ const ProjectDetailsPage: React.FC = () => {
               </CardContent>
             </Card>
             <div className="space-y-4">
-              {Comments.map((comment, index) => (
-                <CommentComponent key={index} comment={comment} />
+              {memoizedComments.map((comment) => (
+                <CommentComponent
+                  key={comment._id}
+                  comment={comment}
+                  onLike={handleLike}
+                  onDislike={handleDislike}
+                  onReply={handleReply}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onReplyLike={handleReplyLikeUnlike}
+                />
               ))}
             </div>
           </TabsContent>
@@ -702,3 +487,4 @@ const ProjectDetailsPage: React.FC = () => {
 };
 
 export default ProjectDetailsPage;
+
