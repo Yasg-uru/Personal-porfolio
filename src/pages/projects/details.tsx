@@ -8,6 +8,7 @@ import {
   addComment,
   addReplyOnComment,
   getprojectDetailsById,
+  likeOnReply,
 } from "@/state/slices/projectSlice/slice";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -103,6 +104,38 @@ const ProjectDetailsPage: React.FC = () => {
         );
       }
     });
+    socket.on(
+      "reply-like-update",
+      ({
+        projectId,
+        commentId,
+        replyId,
+        action,
+        userId,
+       likes
+      }) => {
+        if (projectId === id) {
+          setComments((prevComments) =>
+            prevComments.map((comment) => {
+              if (commentId === comment._id) {
+                return {
+                  ...comment,
+                  replies: comment.replies.map((reply) => {
+                    if (reply._id === replyId) {
+                      return {...reply,likes};
+                    } else {
+                      return reply;
+                    }
+                  }),
+                };
+              } else {
+                return comment;
+              }
+            })
+          );
+        }
+      }
+    );
   }, []);
   useEffect(() => {
     if (projectDetails && projectDetails.comments.length > 0) {
@@ -152,7 +185,21 @@ const ProjectDetailsPage: React.FC = () => {
         });
     }
   };
-
+  const handleReplyLikeUnlike = (replyId: string, commentId: string) => {
+    if (id) {
+      dispatch(likeOnReply({ commentId, replyId, projectId: id }))
+        .unwrap()
+        .then(() => {
+          toast({ title: "liked reply successfully" });
+        })
+        .catch((error) => {
+          toast({
+            title: error,
+            variant: "destructive",
+          });
+        });
+    }
+  };
   const handleLike = async (commentId: string) => {
     // Implement like functionality
   };
@@ -304,6 +351,9 @@ const ProjectDetailsPage: React.FC = () => {
                       <p className="mt-1 text-gray-300">{reply.comment}</p>
                       <Button
                         variant={null}
+                        onClick={() =>
+                          handleReplyLikeUnlike(reply._id, comment._id)
+                        }
                         size="sm"
                         className="mt-2 flex items-center gap-1 text-gray-400 hover:text-white"
                       >

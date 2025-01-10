@@ -84,6 +84,34 @@ export const addReplyOnComment = createAsyncThunk(
     }
   }
 );
+export const likeOnReply = createAsyncThunk(
+  "project/likeOnReply",
+  async (
+    {
+      projectId,
+      commentId,
+      replyId,
+    }: { projectId: string; commentId: string; replyId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.post(
+        `/project/like-unlike-reply/${projectId}/${commentId}/${replyId}`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      const err: axiosError = error as axiosError;
+      if (err.response && err.response.data && err.response.data.message) {
+        return rejectWithValue(err.response.data.message);
+      }
+      return rejectWithValue("Failed to like the reply. Please try again later.");
+    }
+  }
+);
 
 const projectSlice = createSlice({
   name: "project",
