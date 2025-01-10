@@ -8,6 +8,7 @@ import {
   addComment,
   addReplyOnComment,
   getprojectDetailsById,
+  likeOnComment,
   likeOnReply,
 } from "@/state/slices/projectSlice/slice";
 import { Button } from "@/components/ui/button";
@@ -106,14 +107,7 @@ const ProjectDetailsPage: React.FC = () => {
     });
     socket.on(
       "reply-like-update",
-      ({
-        projectId,
-        commentId,
-        replyId,
-        action,
-        userId,
-       likes
-      }) => {
+      ({ projectId, commentId, replyId, action, userId, likes }) => {
         if (projectId === id) {
           setComments((prevComments) =>
             prevComments.map((comment) => {
@@ -122,7 +116,7 @@ const ProjectDetailsPage: React.FC = () => {
                   ...comment,
                   replies: comment.replies.map((reply) => {
                     if (reply._id === replyId) {
-                      return {...reply,likes};
+                      return { ...reply, likes };
                     } else {
                       return reply;
                     }
@@ -134,6 +128,23 @@ const ProjectDetailsPage: React.FC = () => {
             })
           );
         }
+      }
+    );
+    socket.on(
+      "commentLike-update",
+      ({ projectId, commentId, userId, likes, action }) => {
+        setComments((prevComments) =>
+          prevComments.map((comment) => {
+            if (comment._id === commentId) {
+              return {
+                ...comment,
+                likes,
+              };
+            } else {
+              return comment;
+            }
+          })
+        );
       }
     );
   }, []);
@@ -201,7 +212,21 @@ const ProjectDetailsPage: React.FC = () => {
     }
   };
   const handleLike = async (commentId: string) => {
-    // Implement like functionality
+    if (id) {
+      dispatch(likeOnComment({ projectId: id, commentId }))
+        .unwrap()
+        .then(() => {
+          toast({
+            title: "comment liked successfully",
+          });
+        })
+        .catch((error) => {
+          toast({
+            title: error,
+            variant: "destructive",
+          });
+        });
+    }
   };
 
   const handleDislike = async (commentId: string) => {
