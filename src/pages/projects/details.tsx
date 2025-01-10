@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAppDispatch, useAppSelector } from "@/state/hook";
 import {
   addComment,
+  addReplyOnComment,
   getprojectDetailsById,
 } from "@/state/slices/projectSlice/slice";
 import { Button } from "@/components/ui/button";
@@ -63,7 +64,6 @@ const ProjectDetailsPage: React.FC = () => {
 
   const [Comments, setComments] = useState<Comment[]>([]);
 
-
   useEffect(() => {
     if (id) {
       dispatch(getprojectDetailsById(id))
@@ -87,6 +87,22 @@ const ProjectDetailsPage: React.FC = () => {
         setComments((prevComment) => [...prevComment, comment]);
       }
     });
+    socket.on("new_reply", ({ commentId, projectId, reply }) => {
+      if (projectId === id) {
+        setComments((prevComments) =>
+          prevComments.map((comment) => {
+            if (comment._id === commentId) {
+              return {
+                ...comment,
+                replies: [...comment.replies, reply],
+              };
+            } else {
+              return comment;
+            }
+          })
+        );
+      }
+    });
   }, []);
   useEffect(() => {
     if (projectDetails && projectDetails.comments.length > 0) {
@@ -94,6 +110,14 @@ const ProjectDetailsPage: React.FC = () => {
     }
   }, [projectDetails]);
   const handleComment = () => {
+    if (!newComment.trim()) {
+      toast({
+        title:
+          "you cant able to send the empty comment so please write text and then send it ",
+
+        variant: "destructive",
+      });
+    }
     if (id) {
       dispatch(addComment({ comment: newComment, projectId: id }))
         .unwrap()
@@ -112,7 +136,21 @@ const ProjectDetailsPage: React.FC = () => {
   };
 
   const handleReply = async (commentId: string) => {
-    // Implement reply submission
+    if (id) {
+      dispatch(addReplyOnComment({ commentId, replyText, projectId: id }))
+        .unwrap()
+        .then(() => {
+          toast({
+            title: "replied on comment successfully",
+          });
+        })
+        .catch((error) => {
+          toast({
+            title: error,
+            variant: "destructive",
+          });
+        });
+    }
   };
 
   const handleLike = async (commentId: string) => {
@@ -131,7 +169,7 @@ const ProjectDetailsPage: React.FC = () => {
     // Implement delete functionality
   };
   if (isLoading) {
-      return (
+    return (
       <div className="min-h-screen bg-black p-8">
         <div className="max-w-6xl mx-auto space-y-8">
           <Skeleton className="h-8 w-1/3" />
@@ -140,8 +178,8 @@ const ProjectDetailsPage: React.FC = () => {
         </div>
       </div>
     );
-}
-if(!projectDetails) return null;
+  }
+  if (!projectDetails) return null;
 
   const CommentComponent: React.FC<{ comment: Comment }> = ({ comment }) => (
     <Card className="bg-black border-gray-800 mb-4">
@@ -548,7 +586,7 @@ if(!projectDetails) return null;
               </CardContent>
             </Card>
             <div className="space-y-4">
-              {Comments.map((comment,index) => (
+              {Comments.map((comment, index) => (
                 <CommentComponent key={index} comment={comment} />
               ))}
             </div>

@@ -41,10 +41,7 @@ export const getprojectDetailsById = createAsyncThunk(
 );
 export const addComment = createAsyncThunk(
   "project/addComment",
-  async (
-    data: { projectId: string; comment: string },
-    { rejectWithValue }
-  ) => {
+  async (data: { projectId: string; comment: string }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(`/project/addcomment`, data, {
         withCredentials: true,
@@ -58,6 +55,36 @@ export const addComment = createAsyncThunk(
     }
   }
 );
+export const addReplyOnComment = createAsyncThunk(
+  "project/replyoncomment",
+  async (
+    {
+      projectId,
+      commentId,
+      replyText,
+    }: { projectId: string; commentId: string; replyText: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.post(
+        `/project/addreply/${projectId}/${commentId}`,
+        { replyText },
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      const err: axiosError = error as axiosError;
+      if (err.response && err.response.data && err.response.data.message)
+        return rejectWithValue(err.response.data.message);
+      return rejectWithValue(
+        "failed to reply on project please try again later"
+      );
+    }
+  }
+);
+
 const projectSlice = createSlice({
   name: "project",
   initialState,
@@ -85,7 +112,6 @@ const projectSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(addComment.fulfilled, (state) => {
-      
         state.realTimeLoading = false;
       })
       .addCase(addComment.pending, (state) => {
