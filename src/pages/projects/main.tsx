@@ -22,8 +22,7 @@ const Projects: React.FC = () => {
   const dispatch = useAppDispatch();
   const { projects } = useAppSelector((state) => state.project);
   const { toast } = useToast();
-  const navigate=useNavigate();
-
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(getProjects())
@@ -40,9 +39,9 @@ const Projects: React.FC = () => {
         });
       });
   }, [dispatch, toast]);
-const handleClick=(id:string)=>{
-navigate(`/details/${id}`)
-}
+  const handleClick = (id: string) => {
+    navigate(`/details/${id}`);
+  };
   return (
     <div className="min-h-screen bg-black p-8">
       <div className="max-w-7xl mx-auto">
@@ -51,7 +50,7 @@ navigate(`/details/${id}`)
           {projects.map((project) => (
             <Card
               key={project._id}
-              onClick={()=>handleClick(project._id)}
+              onClick={() => handleClick(project._id)}
               className="bg-black border-[#2C2C2C] hover:border-[#3C3C3C] transition-all duration-200 p-6"
             >
               <div className="flex items-start gap-4">

@@ -11,6 +11,7 @@ interface authContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   user: user | null;
+  logout: () => void;
 }
 interface providerprops {
   children: React.ReactNode;
@@ -45,12 +46,31 @@ export const AuthProvider: React.FC<providerprops> = ({ children }) => {
       setIsLoading(false);
     }
   };
+  const logout = async () => {
+    try {
+      setIsLoading(true);
+
+      await axiosInstance.post(
+        "/user/logout",
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      setAuthUser(null);
+      setIsAuthenticated(false);
+    } catch (error) {
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   useEffect(() => {
     getUserDetails();
   }, []);
   return (
     <authContext.Provider
-      value={{ isAuthenticated, isLoading, user: authUser }}
+      value={{ isAuthenticated, isLoading, user: authUser, logout }}
     >
       {children}
     </authContext.Provider>

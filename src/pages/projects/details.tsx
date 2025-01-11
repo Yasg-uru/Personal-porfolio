@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -23,20 +21,31 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Github, ExternalLink, Calendar, Users, Clock, Target, Zap, Video } from 'lucide-react';
+import {
+  Github,
+  ExternalLink,
+  Calendar,
+  Users,
+  Clock,
+  Target,
+  Zap,
+  Video,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Comment, ProjectDetails } from "@/state/slices/projectSlice/details";
 import { socket } from "@/App";
 import CommentComponent from "./comment";
-
+import { useAuthContext } from "@/context/authContext";
 
 const ProjectDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const [newComment, setNewComment] = useState("");
-
-  const { projectDetails, isLoading } = useAppSelector((state) => state.project);
+  const { isAuthenticated, user } = useAuthContext();
+  const { projectDetails, isLoading } = useAppSelector(
+    (state) => state.project
+  );
 
   const [comments, setComments] = useState<Comment[]>([]);
 
@@ -59,13 +68,27 @@ const ProjectDetailsPage: React.FC = () => {
   }, [id, dispatch, toast]);
 
   useEffect(() => {
-    const handleNewComment = ({ projectId, comment }: { projectId: string, comment: Comment }) => {
+    const handleNewComment = ({
+      projectId,
+      comment,
+    }: {
+      projectId: string;
+      comment: Comment;
+    }) => {
       if (projectId === id) {
         setComments((prevComments) => [...prevComments, comment]);
       }
     };
 
-    const handleNewReply = ({ commentId, projectId, reply }: { commentId: string, projectId: string, reply: Comment }) => {
+    const handleNewReply = ({
+      commentId,
+      projectId,
+      reply,
+    }: {
+      commentId: string;
+      projectId: string;
+      reply: Comment;
+    }) => {
       if (projectId === id) {
         setComments((prevComments) =>
           prevComments.map((comment) =>
@@ -77,7 +100,17 @@ const ProjectDetailsPage: React.FC = () => {
       }
     };
 
-    const handleReplyLikeUpdate = ({ projectId, commentId, replyId, likes }: { projectId: string, commentId: string, replyId: string, likes: any[] }) => {
+    const handleReplyLikeUpdate = ({
+      projectId,
+      commentId,
+      replyId,
+      likes,
+    }: {
+      projectId: string;
+      commentId: string;
+      replyId: string;
+      likes: any[];
+    }) => {
       if (projectId === id) {
         setComments((prevComments) =>
           prevComments.map((comment) =>
@@ -94,7 +127,15 @@ const ProjectDetailsPage: React.FC = () => {
       }
     };
 
-    const handleCommentLikeUpdate = ({ projectId, commentId, likes }: { projectId: string, commentId: string, likes: any[] }) => {
+    const handleCommentLikeUpdate = ({
+      projectId,
+      commentId,
+      likes,
+    }: {
+      projectId: string;
+      commentId: string;
+      likes: any[];
+    }) => {
       if (projectId === id) {
         setComments((prevComments) =>
           prevComments.map((comment) =>
@@ -104,7 +145,15 @@ const ProjectDetailsPage: React.FC = () => {
       }
     };
 
-    const handleDislikeUpdate = ({ projectId, commentId, dislikes }: { projectId: string, commentId: string, dislikes: any[] }) => {
+    const handleDislikeUpdate = ({
+      projectId,
+      commentId,
+      dislikes,
+    }: {
+      projectId: string;
+      commentId: string;
+      dislikes: any[];
+    }) => {
       if (projectId === id) {
         setComments((prevComments) =>
           prevComments.map((comment) =>
@@ -138,7 +187,8 @@ const ProjectDetailsPage: React.FC = () => {
   const handleComment = useCallback(() => {
     if (!newComment.trim()) {
       toast({
-        title: "You can't send an empty comment. Please write text and then send it.",
+        title:
+          "You can't send an empty comment. Please write text and then send it.",
         variant: "destructive",
       });
       return;
@@ -161,75 +211,102 @@ const ProjectDetailsPage: React.FC = () => {
     }
   }, [newComment, id, dispatch, toast]);
 
-  const handleReply = useCallback((commentId: string, replyText: string) => {
-    if (id) {
-      dispatch(addReplyOnComment({ commentId, replyText, projectId: id }))
-        .unwrap()
-        .then(() => {
-          toast({
-            title: "Replied on comment successfully",
+  const handleReply = useCallback(
+    (commentId: string, replyText: string) => {
+      if (id) {
+        dispatch(addReplyOnComment({ commentId, replyText, projectId: id }))
+          .unwrap()
+          .then(() => {
+            toast({
+              title: "Replied on comment successfully",
+            });
+          })
+          .catch((error) => {
+            toast({
+              title: error,
+              variant: "destructive",
+            });
           });
-        })
-        .catch((error) => {
-          toast({
-            title: error,
-            variant: "destructive",
-          });
-        });
-    }
-  }, [id, dispatch, toast]);
+      }
+    },
+    [id, dispatch, toast]
+  );
 
-  const handleReplyLikeUnlike = useCallback((replyId: string, commentId: string) => {
-    if (id) {
-      dispatch(likeOnReply({ commentId, replyId, projectId: id }))
-        .unwrap()
-        .then(() => {
-          toast({ title: "Liked reply successfully" });
-        })
-        .catch((error) => {
-          toast({
-            title: error,
-            variant: "destructive",
-          });
+  const handleReplyLikeUnlike = useCallback(
+    (replyId: string, commentId: string) => {
+      if (!isAuthenticated) {
+        toast({
+          title: "please login to continue",
         });
-    }
-  }, [id, dispatch, toast]);
+      }
+      if (id) {
+        dispatch(likeOnReply({ commentId, replyId, projectId: id }))
+          .unwrap()
+          .then(() => {
+            toast({ title: "Liked reply successfully" });
+          })
+          .catch((error) => {
+            toast({
+              title: error,
+              variant: "destructive",
+            });
+          });
+      }
+    },
+    [id, dispatch, toast]
+  );
 
-  const handleLike = useCallback((commentId: string) => {
-    if (id) {
-      dispatch(likeOnComment({ projectId: id, commentId }))
-        .unwrap()
-        .then(() => {
-          toast({
-            title: "Comment liked successfully",
-          });
-        })
-        .catch((error) => {
-          toast({
-            title: error,
-            variant: "destructive",
-          });
+  const handleLike = useCallback(
+    (commentId: string) => {
+      if (!isAuthenticated) {
+        toast({
+          title: "please login to continue",
         });
-    }
-  }, [id, dispatch, toast]);
+      }
+      if (id) {
+        dispatch(likeOnComment({ projectId: id, commentId }))
+          .unwrap()
+          .then(() => {
+            toast({
+              title: "Comment liked successfully",
+            });
+          })
+          .catch((error) => {
+            toast({
+              title: error,
+              variant: "destructive",
+            });
+          });
+      }
+    },
+    [id, dispatch, toast]
+  );
 
-  const handleDislike = useCallback((commentId: string) => {
-    if (id) {
-      dispatch(dislike({ commentId, projectId: id }))
-        .unwrap()
-        .then(() => {
-          toast({
-            title: "Disliked successfully",
-          });
-        })
-        .catch((error) => {
-          toast({
-            title: error,
-            variant: "destructive",
-          });
+  const handleDislike = useCallback(
+    (commentId: string) => {
+      if (!isAuthenticated) {
+        toast({
+          title: "please login to continue",
         });
-    }
-  }, [id, dispatch, toast]);
+      }
+      if (id) {
+        dispatch(dislike({ commentId, projectId: id }))
+          .unwrap()
+          .then(() => {
+            toast({
+              title: "Disliked successfully",
+            });
+          })
+          .catch((error) => {
+            toast({
+              title: error,
+              variant: "destructive",
+            });
+          });
+      }
+    },
+    [id, dispatch, toast]
+  );
 
   const handleEdit = useCallback((commentId: string, newText: string) => {
     // Implement edit functionality
@@ -357,14 +434,18 @@ const ProjectDetailsPage: React.FC = () => {
                           <Calendar className="h-5 w-5 text-gray-400" />
                           <span>
                             Created:{" "}
-                            {new Date(projectDetails.createdAt).toLocaleDateString()}
+                            {new Date(
+                              projectDetails.createdAt
+                            ).toLocaleDateString()}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-5 w-5 text-gray-400" />
                           <span>
                             Updated:{" "}
-                            {new Date(projectDetails.updatedAt).toLocaleDateString()}
+                            {new Date(
+                              projectDetails.updatedAt
+                            ).toLocaleDateString()}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -376,7 +457,8 @@ const ProjectDetailsPage: React.FC = () => {
                         <div className="flex items-center gap-2">
                           <Clock className="h-5 w-5 text-gray-400" />
                           <span>
-                            Estimated Time: {projectDetails.estimatedCompletionTime}
+                            Estimated Time:{" "}
+                            {projectDetails.estimatedCompletionTime}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -487,4 +569,3 @@ const ProjectDetailsPage: React.FC = () => {
 };
 
 export default ProjectDetailsPage;
-

@@ -1,7 +1,17 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import { Button } from "@/components/ui/button";
+import { useAuthContext } from "@/context/authContext";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const Header: React.FC = () => {
+  const { isAuthenticated, logout, isLoading } = useAuthContext();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <header className="sticky top-0 z-50 bg-gray-900 bg-opacity-80 backdrop-blur-md">
       <nav className="container mx-auto flex items-center justify-between p-4">
@@ -29,11 +39,21 @@ const Header: React.FC = () => {
               Contact
             </Link>
           </li>
+          {isAuthenticated && ( // Show the logout button only if the user is authenticated
+            <li>
+              <Button
+                onClick={handleLogout}
+                variant={"outline"}
+                className="text-black font-semibold hover:text-gray-700 focus:outline-none"
+              >
+                {isLoading ? "...Loading" : "Logout"}
+              </Button>
+            </li>
+          )}
         </ul>
       </nav>
     </header>
-  )
-}
+  );
+};
 
-export default Header
-
+export default Header;
