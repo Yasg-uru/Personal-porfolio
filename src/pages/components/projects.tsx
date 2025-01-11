@@ -1,4 +1,3 @@
-"use client"
 
 import React, { useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
@@ -9,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Heart, MessageSquare, Eye, Calendar, Github, ExternalLink, GitFork, ThumbsUp } from 'lucide-react'
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
+import { Button } from "@/components/ui/button"
 
 const ProjectCard: React.FC<{ project: any; index: number }> = ({ project, index }) => {
   const navigate = useNavigate()
@@ -89,11 +89,24 @@ const ProjectCard: React.FC<{ project: any; index: number }> = ({ project, index
           </div>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-gray-700 flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-green-500" />
-          <span className="text-sm text-gray-400">
-            created {new Date(project.updatedAt).toLocaleDateString()}
-          </span>
+        <div className="mt-4 pt-4 border-t border-gray-700 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded-full bg-green-500" />
+            <span className="text-sm text-gray-400">
+              Created {new Date(project.updatedAt).toLocaleDateString()}
+            </span>
+          </div>
+          <Button
+            className="bg-white"
+            variant={'destructive'} 
+            
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent card click from firing
+              navigate(`/details/${project._id}`);
+            }}
+          >
+            View Full Details
+          </Button>
         </div>
       </Card>
     </motion.div>

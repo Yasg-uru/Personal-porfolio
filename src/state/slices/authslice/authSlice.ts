@@ -3,6 +3,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 import { InitialState } from "./type";
 import { LoginFormValues } from "@/pages/auth/login";
+import { ContactFormInputs } from "@/pages/components/contact";
 interface validationError {
   message: string;
 }
@@ -43,6 +44,26 @@ export const login = createAsyncThunk(
     }
   }
 );
+export const sendMessage = createAsyncThunk(
+  "auth/send-message",
+  async (data: ContactFormInputs, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        "/notification/send-message",
+        data,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      const err: axiosError = error as axiosError;
+      if (err.response && err.response.data && err.response.data.message)
+        return rejectWithValue(err.response.data.message);
+      return rejectWithValue("failed to send message please try again later");
+    }
+  }
+);
 
 const authSlice = createSlice({
   name: "auth",
@@ -66,6 +87,15 @@ const authSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(login.rejected, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(sendMessage.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(sendMessage.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(sendMessage.rejected, (state) => {
         state.isLoading = false;
       });
   },

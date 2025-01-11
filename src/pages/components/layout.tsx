@@ -11,7 +11,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-gray-900 to-black text-white">
-      <Header />
+     
       <main className="flex-1">{children}</main>
       <Footer />
     </div>

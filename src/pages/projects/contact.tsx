@@ -62,18 +62,18 @@ const Contact: React.FC = () => {
   };
 
   return (
-    <section
+    <div 
       id="contact"
-      className="container mx-auto px-4 py-16 md:px-6 md:py-24"
+      className="min-h-screen justify-center items-center bg-black pt-5"
     >
-      <h2 className="text-3xl font-bold mb-8 text-center">Get in Touch</h2>
+      <h2 className="text-3xl font-bold mb-8 text-center text-white">Get in Touch</h2>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="max-w-md mx-auto"
       >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-white">
           {/* Name Field */}
           <div>
             <label
@@ -174,7 +174,7 @@ const Contact: React.FC = () => {
           </Button>
         </form>
       </motion.div>
-    </section>
+    </div>
   );
 };
 

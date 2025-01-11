@@ -1,8 +1,13 @@
 import React from "react";
 import { motion } from "framer-motion";
 import YashChoudhary from "@/assets/my_images/yash_choudhary.jpg";
+import { useNavigate } from "react-router-dom";
 
 const Hero: React.FC = () => {
+  const navigate = useNavigate();
+  const handleProjectClick = () => {
+    navigate("/projects");
+  };
   return (
     <section className="container mx-auto grid gap-8 px-4 py-16 md:px-6 lg:grid-cols-2 lg:gap-16 lg:py-24">
       <motion.div
@@ -36,7 +41,7 @@ const Hero: React.FC = () => {
           <motion.a
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            href="#projects"
+            onClick={handleProjectClick}
             className="rounded-full border border-white px-6 py-3 text-white hover:bg-white hover:text-black"
           >
             View Projects
