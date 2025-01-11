@@ -6,6 +6,8 @@ interface user {
   email: string;
   username: string;
   profileUrl: string;
+  _id:string ;
+
 }
 interface authContextType {
   isLoading: boolean;
@@ -18,7 +20,7 @@ interface providerprops {
 }
 const authContext = React.createContext<authContextType | undefined>(undefined);
 export const AuthProvider: React.FC<providerprops> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(true);
   const [authUser, setAuthUser] = React.useState<user | null>(null);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const { toast } = useToast();

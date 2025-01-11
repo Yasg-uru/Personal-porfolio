@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAppDispatch, useAppSelector } from "@/state/hook";
 import {
@@ -46,6 +46,7 @@ const ProjectDetailsPage: React.FC = () => {
   const { projectDetails, isLoading } = useAppSelector(
     (state) => state.project
   );
+  const navigate = useNavigate();
 
   const [comments, setComments] = useState<Comment[]>([]);
 
@@ -185,6 +186,12 @@ const ProjectDetailsPage: React.FC = () => {
   }, [projectDetails]);
 
   const handleComment = useCallback(() => {
+    if (!isAuthenticated) {
+      toast({
+        title: "please login to continue",
+      });
+      navigate("/login");
+    }
     if (!newComment.trim()) {
       toast({
         title:
@@ -213,6 +220,12 @@ const ProjectDetailsPage: React.FC = () => {
 
   const handleReply = useCallback(
     (commentId: string, replyText: string) => {
+      if (!isAuthenticated) {
+        toast({
+          title: "please login to continue",
+        });
+        navigate("/login");
+      }
       if (id) {
         dispatch(addReplyOnComment({ commentId, replyText, projectId: id }))
           .unwrap()
@@ -238,6 +251,7 @@ const ProjectDetailsPage: React.FC = () => {
         toast({
           title: "please login to continue",
         });
+        navigate("/login");
       }
       if (id) {
         dispatch(likeOnReply({ commentId, replyId, projectId: id }))
@@ -262,6 +276,7 @@ const ProjectDetailsPage: React.FC = () => {
         toast({
           title: "please login to continue",
         });
+        navigate("/login");
       }
       if (id) {
         dispatch(likeOnComment({ projectId: id, commentId }))
@@ -288,6 +303,7 @@ const ProjectDetailsPage: React.FC = () => {
         toast({
           title: "please login to continue",
         });
+        navigate("/login");
       }
       if (id) {
         dispatch(dislike({ commentId, projectId: id }))
