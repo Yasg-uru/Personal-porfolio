@@ -7,7 +7,7 @@ import Details from "./pages/projects/details";
 import RegisterUser from "./pages/auth/registerUser";
 import LoginUser from "./pages/auth/login";
 import { io } from "socket.io-client";
-import HomePage from "./pages/HomePage";
+import HomePage from "./pages/homepage";
 import Header from "./pages/components/header";
 import Skills from "./pages/components/skills";
 import SkillsPage from "./pages/projects/skills";
@@ -20,8 +20,8 @@ const App: React.FC = () => {
       <Header />
       <Routes>
         <Route path="/" element={<HomePage />} />
-<Route path="/skills" element={<SkillsPage/>}/>
-<Route path="/contact" element={<Contact/>}/>
+        <Route path="/skills" element={<SkillsPage />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/details/:id" element={<Details />} />
         <Route path="/register" element={<RegisterUser />} />
