@@ -112,6 +112,7 @@ export interface SEO {
 export interface Project {
   _id: string;
   title: string;
+  category:'featured' |'practice' ;
   description: string;
   categories: string[];
   tags: string[];
