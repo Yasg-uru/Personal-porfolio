@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import {  useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAppDispatch, useAppSelector } from "@/state/hook";
 import {
@@ -32,7 +32,7 @@ import {
   Video,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Comment, ProjectDetails } from "@/state/slices/projectSlice/details";
+import { Comment } from "@/state/slices/projectSlice/details";
 import { socket } from "@/App";
 import CommentComponent from "./comment";
 import { useAuthContext } from "@/context/authContext";
@@ -43,7 +43,7 @@ const ProjectDetailsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const [newComment, setNewComment] = useState("");
-  const { isAuthenticated, user } = useAuthContext();
+  const { isAuthenticated } = useAuthContext();
   const { projectDetails, isLoading } = useAppSelector(
     (state) => state.project
   );

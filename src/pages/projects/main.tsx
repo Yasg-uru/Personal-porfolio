@@ -7,13 +7,13 @@ import React, { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  Heart,
+  // Heart,
   MessageSquare,
   Eye,
-  Calendar,
+  // Calendar,
   Github,
   ExternalLink,
-  GitFork,
+  // GitFork,
   ThumbsUp,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
