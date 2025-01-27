@@ -11,7 +11,7 @@ import Header from "./pages/components/header";
 
 import SkillsPage from "./pages/projects/skills";
 import Contact from "./pages/projects/contact";
-import HomePage from "./pages/homepage";
+import {HomePage} from "./pages/homepage";
 
 export const socket = io("https://yash-choudhary-portfolio-backend.onrender.com");
 const App: React.FC = () => {
