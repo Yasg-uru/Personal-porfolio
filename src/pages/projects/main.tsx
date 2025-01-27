@@ -42,6 +42,11 @@ const Projects: React.FC = () => {
   const handleClick = (id: string) => {
     navigate(`/details/${id}`);
   };
+  if(projects.length===0){
+    return <div>
+      project not found
+    </div>
+  }
   return (
     <div className="min-h-screen bg-black p-8">
       <div className="max-w-7xl mx-auto">
@@ -68,7 +73,7 @@ const Projects: React.FC = () => {
                   <div className="flex items-center gap-2 mt-1">
                     <Github className="w-4 h-4 text-gray-400" />
                     <span className="text-sm text-gray-400 truncate">
-                      {project.repository.split("/").slice(-2).join("/")}
+                      {/* {project.repository.split("/").slice(-2).join("/") || } */}
                     </span>
                   </div>
                 </div>

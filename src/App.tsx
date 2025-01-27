@@ -9,17 +9,18 @@ import LoginUser from "./pages/auth/login";
 import { io } from "socket.io-client";
 import HomePage from "./pages/homepage";
 import Header from "./pages/components/header";
-import Skills from "./pages/components/skills";
+
 import SkillsPage from "./pages/projects/skills";
 import Contact from "./pages/projects/contact";
-// import Projects from "./pages/projects";
-export const socket = io("http://localhost:8000");
+
+export const socket = io("http://localhost:8001");
 const App: React.FC = () => {
   return (
     <>
       <Header />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        {/* <Route path="/create" element={<CreateProject />} /> */}
         <Route path="/skills" element={<SkillsPage />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/projects" element={<Projects />} />

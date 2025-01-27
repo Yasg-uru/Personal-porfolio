@@ -36,6 +36,7 @@ import { Comment, ProjectDetails } from "@/state/slices/projectSlice/details";
 import { socket } from "@/App";
 import CommentComponent from "./comment";
 import { useAuthContext } from "@/context/authContext";
+import { Gallery } from "./createproject/gallery";
 
 const ProjectDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -137,6 +138,7 @@ const ProjectDetailsPage: React.FC = () => {
       commentId: string;
       likes: any[];
     }) => {
+      console.log('this is likes L',likes)
       if (projectId === id) {
         setComments((prevComments) =>
           prevComments.map((comment) =>
@@ -500,16 +502,7 @@ const ProjectDetailsPage: React.FC = () => {
 
           {/* Gallery tab */}
           <TabsContent value="gallery" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {projectDetails.gallery.map((image) => (
-                <img
-                  key={image._id}
-                  src={image.url}
-                  alt={image.title}
-                  className="rounded-lg object-cover w-full h-48"
-                />
-              ))}
-            </div>
+          <Gallery images={projectDetails.gallery} />
           </TabsContent>
 
           {/* Videos tab */}

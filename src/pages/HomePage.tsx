@@ -1,6 +1,6 @@
 import React from 'react'
 import Hero from './components/profile'
-import ProjectDetailsPage from './projects/details'
+
 import Skills from './components/skills'
 import Contact from './components/contact'
 import Projects from './projects/main'

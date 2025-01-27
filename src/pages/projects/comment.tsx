@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,16 +36,30 @@ const CommentComponent: React.FC<CommentComponentProps> = memo(
     const [replyingTo, setReplyingTo] = React.useState<string | null>(null);
     const [replyText, setReplyText] = React.useState("");
     const { user, isAuthenticated } = useAuthContext();
+    const isCommentLiked = !!(
+      isAuthenticated &&
+      user &&
+      comment.likes.some((like) => like.userId._id === user._id)
+    );
 
+    const [likedByUser, setLikedByUser] =
+      React.useState<boolean>(isCommentLiked);
     const handleReplySubmit = (commentId: string) => {
       onReply(commentId, replyText);
       setReplyText("");
       setReplyingTo(null);
     };
-    const isCommentLiked =
-      isAuthenticated &&
-      user &&
-      comment.likes.find((like) => like.userId._id === user._id);
+    useEffect(() => {
+      setLikedByUser(
+        !!(
+          isAuthenticated &&
+          user &&
+          comment.likes.some((like) => like.userId._id === user._id)
+        )
+      );
+    }, [comment.likes, user]);
+    console.log("this is auth user :", user?._id);
+    console.log("this is comment likes ", comment.likes);
     // const isCommentdisLiked=isAuthenticated && user && user._id===comment.userId._id;
     return (
       <Card className="bg-black border-gray-800 mb-4">
@@ -110,7 +124,7 @@ const CommentComponent: React.FC<CommentComponentProps> = memo(
                 >
                   <ThumbsUp
                     className={`h-4 w-4 ${
-                      isCommentLiked ? "text-green-500" : "text-gray-400"
+                      likedByUser ? "text-green-500" : "text-gray-400"
                     }`}
                   />
                   <span>{comment.likes.length}</span>
