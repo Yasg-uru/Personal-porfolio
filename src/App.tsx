@@ -13,7 +13,7 @@ import Header from "./pages/components/header";
 import SkillsPage from "./pages/projects/skills";
 import Contact from "./pages/projects/contact";
 
-export const socket = io("http://localhost:8001");
+export const socket = io("https://yash-choudhary-portfolio-backend.onrender.com");
 const App: React.FC = () => {
   return (
     <>
