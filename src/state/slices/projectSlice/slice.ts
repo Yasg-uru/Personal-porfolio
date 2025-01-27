@@ -36,7 +36,12 @@ export const getprojectDetailsById = createAsyncThunk(
         withCredentials: true,
       });
       return response.data;
-    } catch (error) {}
+    } catch (error) {
+      const err: axiosError = error as axiosError;
+      if (err.response && err.response.data && err.response.data.message)
+        return rejectWithValue(err.response.data.message);
+      return rejectWithValue("failed to load the project details");
+    }
   }
 );
 export const addComment = createAsyncThunk(
