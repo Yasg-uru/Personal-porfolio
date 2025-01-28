@@ -11,7 +11,8 @@ import { io } from "socket.io-client";
 import SkillsPage from "./pages/projects/skills";
 import Header from "./pages/components/header";
 import Contact from "./pages/projects/contact";
-import {HomePage} from "./pages/homepage";
+import MainPage from "./pages/MainPage";
+
 
 export const socket = io("https://yash-choudhary-portfolio-backend.onrender.com");
 const App: React.FC = () => {
@@ -19,7 +20,7 @@ const App: React.FC = () => {
     <>
       <Header />
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<MainPage />} />
         {/* <Route path="/create" element={<CreateProject />} /> */}
         <Route path="/skills" element={<SkillsPage />} />
         <Route path="/contact" element={<Contact />} />

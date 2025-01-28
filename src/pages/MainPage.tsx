@@ -7,7 +7,7 @@ import Projects from './projects/main'
 import Layout from './components/layout'
 
 
-export const HomePage: React.FC = () => {
+ const MainPage: React.FC = () => {
   return (
     <Layout>
       <Hero />
@@ -17,6 +17,6 @@ export const HomePage: React.FC = () => {
     </Layout>
   )
 }
-
+export default MainPage
 
 
