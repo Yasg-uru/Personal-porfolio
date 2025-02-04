@@ -50,29 +50,30 @@ const ProjectCard: React.FC<ProjectProps> = ({
 
   const { user, isAuthenticated } = useAuthContext();
   const { toast } = useToast();
-  
-    useEffect(() => {
-        socket.on("project-like-update", ({ projectId, likes, action }) => {
-          if (currProject._id === projectId) {
-            setCurrProject((prev) => ({ ...prev, likes }));
-      
-            toast({
-              title: action === "liked" ? "Project Liked!" : "Project Unliked!",
-              description: action === "liked" 
-                ? "You have liked this project. Thanks for your support! 🎉" 
-                : "You have unliked this project. Maybe next time! 🤔",
-              variant: action === "liked" ? "default" : "destructive", // Change style based on action
-              duration: 3000, // 3 seconds
-              className:'bg-black text-white'
-            });
-          }
+
+  useEffect(() => {
+    socket.on("project-like-update", ({ projectId, likes, action }) => {
+      if (currProject._id === projectId) {
+        setCurrProject((prev) => ({ ...prev, likes }));
+
+        toast({
+          title: action === "liked" ? "Project Liked!" : "Project Unliked!",
+          description:
+            action === "liked"
+              ? "You have liked this project. Thanks for your support! 🎉"
+              : "You have unliked this project. Maybe next time! 🤔",
+          variant: action === "liked" ? "default" : "destructive",
+          duration: 3000,
+          className: "bg-black text-white",
         });
-      
-        return () => {
-          socket.off("project-like-update");
-        };
-      }, []);
-  
+      }
+    });
+
+    return () => {
+      socket.off("project-like-update");
+    };
+  }, [currProject._id]);
+
   useEffect(() => {
     if (user && isAuthenticated) {
       const hasLiked = currProject.likes.some(
@@ -80,8 +81,8 @@ const ProjectCard: React.FC<ProjectProps> = ({
       );
       setIsLiked(hasLiked);
     }
-  }, [currProject]);
-  // Enhanced motion values for smoother animations
+  }, [currProject, user, isAuthenticated]);
+
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [7, -7]), {
@@ -101,13 +102,13 @@ const ProjectCard: React.FC<ProjectProps> = ({
     if (!currProject.gallery || currProject.gallery.length <= 1) return;
 
     let timeout: NodeJS.Timeout;
-    // if (isHovered) {
-    timeout = setTimeout(() => {
-      setCurrentImageIndex(
-        (prevIndex) => (prevIndex + 1) % currProject.gallery.length
-      );
-    }, 500);
-    // }
+    if (isHovered) {
+      timeout = setTimeout(() => {
+        setCurrentImageIndex(
+          (prevIndex) => (prevIndex + 1) % currProject.gallery.length
+        );
+      }, 500);
+    }
 
     return () => clearTimeout(timeout);
   }, [isHovered, currProject.gallery]);
@@ -152,20 +153,21 @@ const ProjectCard: React.FC<ProjectProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 rounded-lg pointer-events-none"
+            className="absolute inset-0 rounded-lg pointer-events-none z-10"
             style={{
               background: `
-                radial-gradient(
-                  800px circle at ${mousePosition.x}px ${mousePosition.y}px,
-                  rgba(29, 78, 216, 0.15),
-                  transparent 40%
-                )
-              `,
+                  radial-gradient(
+                    400px circle at ${mousePosition.x}px ${mousePosition.y}px,
+                    rgba(255, 255, 255, 0.3),  /* Brighter center */
+                    rgba(29, 78, 216, 0.1),
+                    transparent 70%
+                  )
+                `,
+              mixBlendMode: "overlay", // Better blending for brightness
             }}
           />
         )}
       </AnimatePresence>
-
       <motion.div
         style={{
           rotateX,
@@ -175,7 +177,10 @@ const ProjectCard: React.FC<ProjectProps> = ({
         }}
         className="relative will-change-transform"
       >
-        <Card onClick={() => onClick(currProject._id)} className="relative bg-gray-900/50 backdrop-blur-sm border border-gray-800 hover:border-blue-500/50 transition-all duration-300 overflow-hidden group">
+        <Card
+          onClick={() => onClick(currProject._id)}
+          className="relative bg-black backdrop-blur-sm border border-gray-800 hover:border-blue-500/50 transition-all duration-300 overflow-hidden group"
+        >
           <CardHeader className="p-4 relative">
             <motion.div className="relative w-full h-48 overflow-hidden rounded-lg">
               <AnimatePresence mode="wait">
@@ -193,7 +198,6 @@ const ProjectCard: React.FC<ProjectProps> = ({
                   className="w-full h-full object-cover"
                 />
               </AnimatePresence>
-              {/* Image overlay gradient */}
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900/50 to-transparent" />
             </motion.div>
 

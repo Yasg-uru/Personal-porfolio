@@ -1,10 +1,10 @@
 import { useToast } from "@/hooks/use-toast";
 import { useAppDispatch, useAppSelector } from "@/state/hook";
 import { getProjects, likeProject } from "@/state/slices/projectSlice/slice";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { useNavigate } from "react-router-dom";
-import { socket } from "@/App";
+
 
 import type React from "react";
 

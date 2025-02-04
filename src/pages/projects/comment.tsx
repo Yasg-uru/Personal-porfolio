@@ -41,6 +41,7 @@ const CommentComponent: React.FC<CommentComponentProps> = memo(
       user &&
       comment.likes.some((like) => like.userId._id === user._id)
     );
+    console.log('comments likes ')
 
     const [likedByUser, setLikedByUser] =
       React.useState<boolean>(isCommentLiked);

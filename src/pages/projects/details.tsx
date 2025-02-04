@@ -138,13 +138,14 @@ const ProjectDetailsPage: React.FC = () => {
       commentId: string;
       likes: any[];
     }) => {
-      console.log('this is likes L',likes)
       if (projectId === id) {
         setComments((prevComments) =>
           prevComments.map((comment) =>
             comment._id === commentId ? { ...comment, likes } : comment
-          )
-        );
+      )
+    );
+    console.log('this is comments :',comments);
+        
       }
     };
 
@@ -184,6 +185,7 @@ const ProjectDetailsPage: React.FC = () => {
   useEffect(() => {
     if (projectDetails && projectDetails.comments.length > 0) {
       setComments(projectDetails.comments);
+      console.log('this is intial comments :',projectDetails.comments)
     }
   }, [projectDetails]);
 
@@ -205,12 +207,12 @@ const ProjectDetailsPage: React.FC = () => {
     if (id) {
       dispatch(addComment({ comment: newComment, projectId: id }))
         .unwrap()
-        .then(() => {
-          toast({
-            title: "Comment added successfully",
-          });
-          setNewComment("");
-        })
+        // .then(() => {
+        //   toast({
+        //     title: "Comment added successfully",
+        //   });
+        //   setNewComment("");
+        // })
         .catch((error) => {
           toast({
             title: error,
@@ -231,11 +233,11 @@ const ProjectDetailsPage: React.FC = () => {
       if (id) {
         dispatch(addReplyOnComment({ commentId, replyText, projectId: id }))
           .unwrap()
-          .then(() => {
-            toast({
-              title: "Replied on comment successfully",
-            });
-          })
+          // .then(() => {
+          //   toast({
+          //     title: "Replied on comment successfully",
+          //   });
+          // })
           .catch((error) => {
             toast({
               title: error,
@@ -258,9 +260,9 @@ const ProjectDetailsPage: React.FC = () => {
       if (id) {
         dispatch(likeOnReply({ commentId, replyId, projectId: id }))
           .unwrap()
-          .then(() => {
-            toast({ title: "Liked reply successfully" });
-          })
+          // .then(() => {
+          //   toast({ title: "Liked reply successfully" });
+          // })
           .catch((error) => {
             toast({
               title: error,
@@ -283,11 +285,11 @@ const ProjectDetailsPage: React.FC = () => {
       if (id) {
         dispatch(likeOnComment({ projectId: id, commentId }))
           .unwrap()
-          .then(() => {
-            toast({
-              title: "Comment liked successfully",
-            });
-          })
+          // .then(() => {
+          //   toast({
+          //     title: "Comment liked successfully",
+          //   });
+          // })
           .catch((error) => {
             toast({
               title: error,
@@ -310,11 +312,11 @@ const ProjectDetailsPage: React.FC = () => {
       if (id) {
         dispatch(dislike({ commentId, projectId: id }))
           .unwrap()
-          .then(() => {
-            toast({
-              title: "Disliked successfully",
-            });
-          })
+          // .then(() => {
+          //   toast({
+          //     title: "Disliked successfully",
+          //   });
+          // })
           .catch((error) => {
             toast({
               title: error,
