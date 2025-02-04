@@ -1,9 +1,9 @@
 import { useToast } from "@/hooks/use-toast";
 import { useAppDispatch, useAppSelector } from "@/state/hook";
 import { getProjects, likeProject } from "@/state/slices/projectSlice/slice";
-import { useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { socket } from "@/App";
 
 import type React from "react";
@@ -15,7 +15,6 @@ const Projects: React.FC = () => {
   const { projects } = useAppSelector((state) => state.project);
   const { toast } = useToast();
   const navigate = useNavigate();
-  
 
   useEffect(() => {
     dispatch(getProjects())
@@ -33,16 +32,6 @@ const Projects: React.FC = () => {
       });
   }, [dispatch, toast]);
 
-  useEffect(() => {
-    socket.on("project-like-update", ({ projectId, likes, action }) => {
-      toast({
-        title:action,
-        variant:'destructive'
-      })
-      
-    });
-  }, []);
-
   const handleClick = (id: string) => {
     navigate(`/details/${id}`);
   };
@@ -50,9 +39,7 @@ const Projects: React.FC = () => {
   const handleLike = (projectId: string) => {
     dispatch(likeProject(projectId))
       .unwrap()
-      .then(() => {
-       
-      })
+
       .catch((error) => {
         toast({
           title: error,
@@ -83,7 +70,6 @@ const Projects: React.FC = () => {
               index={index}
               onLike={handleLike}
               onClick={handleClick}
-              
             />
           ))}
         </div>
