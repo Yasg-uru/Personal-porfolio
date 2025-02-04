@@ -7,7 +7,7 @@ import {  useNavigate } from "react-router-dom";
 import { socket } from "@/App";
 
 import type React from "react";
-import "./project.css";
+
 import ProjectCard from "./projectCard";
 
 const Projects: React.FC = () => {
@@ -15,7 +15,7 @@ const Projects: React.FC = () => {
   const { projects } = useAppSelector((state) => state.project);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [likedProjects, setLikedProjects] = useState<Set<string>>(new Set());
+  
 
   useEffect(() => {
     dispatch(getProjects())
@@ -35,15 +35,11 @@ const Projects: React.FC = () => {
 
   useEffect(() => {
     socket.on("project-like-update", ({ projectId, likes, action }) => {
-      setLikedProjects((prev) => {
-        const newSet = new Set(prev);
-        if (action === "like") {
-          newSet.add(projectId);
-        } else {
-          newSet.delete(projectId);
-        }
-        return newSet;
-      });
+      toast({
+        title:action,
+        variant:'destructive'
+      })
+      
     });
   }, []);
 
@@ -55,18 +51,7 @@ const Projects: React.FC = () => {
     dispatch(likeProject(projectId))
       .unwrap()
       .then(() => {
-        setLikedProjects((prev) => {
-          const newSet = new Set(prev);
-          if (newSet.has(projectId)) {
-            newSet.delete(projectId);
-          } else {
-            newSet.add(projectId);
-          }
-          return newSet;
-        });
-        toast({
-          title: "Project liked successfully",
-        });
+       
       })
       .catch((error) => {
         toast({
@@ -98,7 +83,7 @@ const Projects: React.FC = () => {
               index={index}
               onLike={handleLike}
               onClick={handleClick}
-              isLiked={likedProjects.has(project._id)}
+              
             />
           ))}
         </div>

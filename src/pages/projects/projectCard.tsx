@@ -23,13 +23,16 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuthContext } from "@/context/authContext";
+import { socket } from "@/App";
+import { useToast } from "@/hooks/use-toast";
+import { Project } from "@/state/slices/projectSlice/type";
 
 interface ProjectProps {
-  project: any;
+  project: Project;
   index: number;
   onLike: (id: string) => void;
   onClick: (id: string) => void;
-  isLiked: boolean;
 }
 
 const ProjectCard: React.FC<ProjectProps> = ({
@@ -37,13 +40,36 @@ const ProjectCard: React.FC<ProjectProps> = ({
   index,
   onLike,
   onClick,
-  isLiked,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isLiked, setIsLiked] = useState<boolean>(false);
+  const [currProject, setCurrProject] = useState<Project>(project);
 
+  const { user, isAuthenticated } = useAuthContext();
+  const { toast } = useToast();
+  useEffect(() => {
+    socket.on("project-like-update", ({ projectId, likes, action }) => {
+      if (currProject._id === projectId) {
+        setCurrProject((prev) => ({ ...prev, likes }));
+
+        toast({
+          title: action,
+          variant: "destructive",
+        });
+      }
+    });
+  }, []);
+  useEffect(() => {
+    if (user && isAuthenticated) {
+      const hasLiked = currProject.likes.some(
+        (like) => like.userId === user._id
+      );
+      setIsLiked(hasLiked);
+    }
+  }, [currProject]);
   // Enhanced motion values for smoother animations
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -61,19 +87,19 @@ const ProjectCard: React.FC<ProjectProps> = ({
   });
 
   useEffect(() => {
-    if (!project.gallery || project.gallery.length <= 1) return;
+    if (!currProject.gallery || currProject.gallery.length <= 1) return;
 
     let timeout: NodeJS.Timeout;
     // if (isHovered) {
-      timeout = setTimeout(() => {
-        setCurrentImageIndex(
-          (prevIndex) => (prevIndex + 1) % project.gallery.length
-        );
-      }, 500);
+    timeout = setTimeout(() => {
+      setCurrentImageIndex(
+        (prevIndex) => (prevIndex + 1) % currProject.gallery.length
+      );
+    }, 500);
     // }
 
     return () => clearTimeout(timeout);
-  }, [isHovered, project.gallery]);
+  }, [isHovered, currProject.gallery]);
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -145,10 +171,10 @@ const ProjectCard: React.FC<ProjectProps> = ({
                 <motion.img
                   key={currentImageIndex}
                   src={
-                    project.gallery[currentImageIndex]?.url ||
+                    currProject.gallery[currentImageIndex]?.url ||
                     "/placeholder.svg"
                   }
-                  alt={project.title}
+                  alt={currProject.title}
                   initial={{ opacity: 0, scale: 1.1 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
@@ -164,7 +190,7 @@ const ProjectCard: React.FC<ProjectProps> = ({
               className="text-white text-xl font-semibold truncate mt-4"
               style={{ transform: "translateZ(30px)" }}
             >
-              {project.title}
+              {currProject.title}
             </motion.h2>
 
             <motion.div
@@ -173,17 +199,17 @@ const ProjectCard: React.FC<ProjectProps> = ({
             >
               <Github className="w-4 h-4 text-blue-400" />
               <span className="text-sm text-gray-300 truncate">
-                {project.repository.split("/").slice(-2).join("/")}
+                {currProject.repository.split("/").slice(-2).join("/")}
               </span>
             </motion.div>
           </CardHeader>
 
           <CardContent className="p-4">
             <p className="text-gray-300 text-sm line-clamp-3 mb-4">
-              {project.description}
+              {currProject.description}
             </p>
             <div className="flex flex-wrap gap-2 mb-4">
-              {project.technologies
+              {currProject.technologies
                 .slice(0, 3)
                 .map((tech: string, index: number) => (
                   <Badge
@@ -199,34 +225,38 @@ const ProjectCard: React.FC<ProjectProps> = ({
             <div className="flex items-center gap-4 text-sm text-gray-400">
               <div className="flex items-center gap-1">
                 <Eye className="w-4 h-4" />
-                <span>{project.analytics?.views || 0}</span>
+                <span>{currProject.analytics?.views || 0}</span>
               </div>
               <div className="flex items-center gap-1">
                 <MessageSquare className="w-4 h-4" />
-                <span>{project.comments?.length || 0}</span>
+                <span>{currProject.comments?.length || 0}</span>
               </div>
             </div>
           </CardContent>
 
           <CardFooter className="p-4 flex items-center justify-between border-t border-gray-800/50">
             <Button
-              variant="ghost"
+              variant={null}
               size="sm"
               className={`flex items-center gap-1 transition-colors ${
                 isLiked ? "text-blue-500" : "text-gray-400"
               } hover:text-blue-400`}
               onClick={(e) => {
                 e.stopPropagation();
-                onLike(project._id);
+                onLike(currProject._id);
               }}
             >
-              <ThumbsUp className="w-4 h-4" />
-              <span>{(project.likes?.length || 0) + (isLiked ? 1 : 0)}</span>
+              <ThumbsUp
+                className="w-4 h-4"
+                fill={isLiked ? "currentColor" : "none"}
+                stroke="currentColor"
+              />
+              <span>{currProject.likes?.length || 0}</span>
             </Button>
 
             <div className="flex items-center gap-2">
               <Link
-                to={project.repository}
+                to={currProject.repository}
                 className="p-2 hover:bg-gray-800/50 rounded-full transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -234,7 +264,7 @@ const ProjectCard: React.FC<ProjectProps> = ({
                 <Github className="w-5 h-5 text-gray-400 hover:text-blue-400" />
               </Link>
               <Link
-                to={project.liveDemo}
+                to={currProject.liveDemo}
                 className="p-2 hover:bg-gray-800/50 rounded-full transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -246,7 +276,7 @@ const ProjectCard: React.FC<ProjectProps> = ({
 
           <Button
             variant="secondary"
-            onClick={() => onClick(project._id)}
+            onClick={() => onClick(currProject._id)}
             className="w-full bg-gray-800/50 hover:bg-blue-500/20 text-white hover:text-blue-400 border-t border-gray-800/50 rounded-none rounded-b-lg relative group transform-gpu"
           >
             Get Project Details
