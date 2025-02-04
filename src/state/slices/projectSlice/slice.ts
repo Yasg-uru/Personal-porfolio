@@ -28,6 +28,25 @@ export const getProjects = createAsyncThunk(
     }
   }
 );
+export const likeProject = createAsyncThunk(
+  "project/likeProject",
+  async (projectId: string, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        `/project/handleLikeUnlikeProject/${projectId}`,
+        {},
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      const err: axiosError = error as axiosError;
+      console.log('this is error :',err)
+      if (err.response && err.response.data && err.response.data.message)
+        return rejectWithValue(err.response.data.message);
+      return rejectWithValue("failed to load the projects");
+    }
+  }
+);
 export const getprojectDetailsById = createAsyncThunk(
   "project/getdetails",
   async (id: string, { rejectWithValue }) => {
