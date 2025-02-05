@@ -5,14 +5,14 @@ import { useEffect } from "react";
 
 import { useNavigate } from "react-router-dom";
 
-
 import type React from "react";
 
 import ProjectCard from "./projectCard";
+import PortfolioLoader from "../components/loader";
 
 const Projects: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { projects } = useAppSelector((state) => state.project);
+  const { projects, isLoading } = useAppSelector((state) => state.project);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -47,7 +47,7 @@ const Projects: React.FC = () => {
         });
       });
   };
-
+  if (isLoading) return <PortfolioLoader />;
   if (projects.length === 0) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">

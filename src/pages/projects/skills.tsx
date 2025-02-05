@@ -145,7 +145,7 @@ export default function Skills() {
     },
   }
   return (
-    <section className="min-h-screen bg-black py-20">
+    <section className="min-h-screen bg-black py-20 flex items-center justify-center">
       <div className="container px-4">
         <div className="text-center space-y-4 mb-16">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>

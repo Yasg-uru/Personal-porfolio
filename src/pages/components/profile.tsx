@@ -6,27 +6,26 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-// import {  useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
 
-// import { useAuthContext } from "@/context/authContext";
+import { useAuthContext } from "@/context/authContext";
 import ExperienceSection from "./experience";
 import AdvancedSkills from "./skills-card";
 
-
 const Hero: React.FC = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
-  // const { isAuthenticated, user, isLoading, logout } = useAuthContext();
+  const { isAuthenticated, user, isLoading, logout } = useAuthContext();
   // Mouse movement animation values
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  // const handleLogout = () => {
-  //   logout();
-  //   navigate("/login");
-  // };
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
   const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [7, -7]), {
     stiffness: 400,
     damping: 25,
@@ -47,8 +46,6 @@ const Hero: React.FC = () => {
     x.set(relativeX / rect.width - 0.5);
     y.set(relativeY / rect.height - 0.5);
   };
-
-  
 
   return (
     <div className="min-h-screen bg-black text-white pt-28">
@@ -112,7 +109,7 @@ const Hero: React.FC = () => {
         >
           <ExperienceSection />
 
-          <AdvancedSkills/>
+          <AdvancedSkills />
         </motion.div>
 
         {/* Social Links */}
@@ -123,7 +120,7 @@ const Hero: React.FC = () => {
           className="fixed left-6 bottom-20 flex flex-col items-center gap-6 z-50"
         >
           <a
-            href="https://github.com/yourusername"
+            href="https://github.com/Yasg-uru"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-[#64ffda] hover:-translate-y-1 transition-all"
@@ -131,7 +128,7 @@ const Hero: React.FC = () => {
             <FaGithub size={20} />
           </a>
           <a
-            href="https://linkedin.com/in/yourusername"
+            href="https://www.linkedin.com/in/yash-choudhary-28766a259"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-[#64ffda] hover:-translate-y-1 transition-all"
@@ -139,7 +136,7 @@ const Hero: React.FC = () => {
             <FaLinkedin size={20} />
           </a>
           <a
-            href="https://twitter.com/yourusername"
+            href="https://x.com/yashc442"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-[#64ffda] hover:-translate-y-1 transition-all"
