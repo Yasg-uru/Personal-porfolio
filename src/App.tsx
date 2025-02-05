@@ -14,8 +14,8 @@ import Contact from "./pages/projects/contact";
 import MainPage from "./pages/MainPage";
 
 
-export const socket = io("http://localhost:8001");
-// export const socket = io("https://yash-choudhary-portfolio-backend.onrender.com");
+// export const socket = io("http://localhost:8001");
+export const socket = io("https://yash-choudhary-portfolio-backend.onrender.com");
 const App: React.FC = () => {
   return (
     <>
