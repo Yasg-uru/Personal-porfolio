@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   AnimatePresence,
   motion,
@@ -6,26 +6,21 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-// import { useNavigate } from "react-router-dom";
 import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
-
-// import { useAuthContext } from "@/context/authContext";
 import ExperienceSection from "./experience";
 import AdvancedSkills from "./skills-card";
+import { Typewriter } from "react-simple-typewriter";
+import { Pen } from "lucide-react"; // Optional: for custom pen icon animation
 
 const Hero: React.FC = () => {
-  // const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
-  // const { isAuthenticated, user, isLoading, logout } = useAuthContext();
+
   // Mouse movement animation values
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  // const handleLogout = () => {
-  //   logout();
-  //   navigate("/login");
-  // };
+
   const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [7, -7]), {
     stiffness: 400,
     damping: 25,
@@ -34,6 +29,24 @@ const Hero: React.FC = () => {
     stiffness: 400,
     damping: 25,
   });
+
+  // State to manage the cyclic text
+  const [currentDescriptionIndex, setCurrentDescriptionIndex] = useState(0);
+  const descriptions = [
+    "An aspiring software engineer with the ability to grow as an individual and learn in the surrounding of talented people.",
+    "Specialized in building exceptional digital experiences.",
+    "A problem solver with a passion for solving complex LeetCode problems. Solved 650+ problems!",
+    "Writes everything in the latest technologies like TypeScript and currently working on CrushSphere.",
+  ];
+
+  // Change the description every 2 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentDescriptionIndex((prev) => (prev + 1) % descriptions.length); // Cycle through the descriptions
+    }, 2000); // Change every 2 seconds
+
+    return () => clearInterval(interval); // Cleanup on component unmount
+  }, []);
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
@@ -48,9 +61,8 @@ const Hero: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pt-28">
+    <div className="min-h-screen bg-black text-white pt-15">
       {/* Hero Section */}
-
       <section
         ref={containerRef}
         onMouseMove={handleMouseMove}
@@ -91,11 +103,20 @@ const Hero: React.FC = () => {
           <h2 className="text-6xl font-bold text-gray-400">
             I love to explore & code!
           </h2>
-          <p className="text-gray-400 text-lg max-w-2xl">
-            An aspiring software engineer with the ability to grow as an
-            individual and learn in the surrounding of talented people.
-            Specialized in building exceptional digital experiences.
-          </p>
+          <div className="text-[#64ffda] text-2xl font-bold flex items-center">
+            <Typewriter
+              words={[descriptions[currentDescriptionIndex]]} // Pass entire sentence, not split characters
+              loop={false}
+              typeSpeed={30}
+              deleteSpeed={10}
+              cursor
+              cursorStyle="_" // Default cursor or custom, for "pen" style see below
+            />
+            {/* Optional: Pen icon */}
+            <span className="ml-1">
+              <Pen className="h-4 w-4 text-[#64ffda] animate-pulse" />
+            </span>
+          </div>
         </motion.div>
 
         {/* Experience Card */}
@@ -108,7 +129,6 @@ const Hero: React.FC = () => {
           className="mt-16 grid gap-8 lg:grid-cols-2"
         >
           <ExperienceSection />
-
           <AdvancedSkills />
         </motion.div>
 
