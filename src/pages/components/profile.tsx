@@ -13,6 +13,7 @@ import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
 import ExperienceSection from "./experience";
 import AdvancedSkills from "./skills-card";
 
+
 const Hero: React.FC = () => {
   // const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
