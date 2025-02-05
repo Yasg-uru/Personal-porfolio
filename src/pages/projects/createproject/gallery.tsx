@@ -34,31 +34,31 @@ export function Gallery({ images }: GalleryProps) {
       transition={{ duration: 0.8 }}
       className="relative"
     >
-      {/* Horizontal ScrollArea for Thumbnail Previews */}
-      <ScrollArea className="w-[80vw] whitespace-nowrap rounded-md border border-[#64ffda] bg-black p-4">
-        <div className="flex gap-6">
-          {images.map((image, index) => (
-            <figure
-              onClick={() => openDialog(index)}
-              key={index}
-              className="w-56 h-56 p-5"
-            >
-              <img
-                src={image.url}
-                alt={`Photo by `}
-                className=" h-full w-full object-cover transform transition-transform duration-300"
-              />
-
-              <figcaption className="pt-2 text-xs text-muted-foreground text-white">
-                <span className="font-semibold text-foreground text-white">
-                  {image.title}
-                </span>
-              </figcaption>
-            </figure>
-          ))}
+     <ScrollArea className="w-[80vw] whitespace-nowrap rounded-md border border-[#64ffda] bg-black p-4">
+  <div className="flex gap-6">
+    {images.map((image, index) => (
+      <div
+        key={index}
+       
+        className={`w-72 h-72 p-5 rounded-lg overflow-hidden cursor-pointer transform transition-transform duration-300 relative group ${
+          currentIndex === index ? "border-4 border-[#64ffda]" : ""
+        }`}
+        onClick={() => openDialog(index)}
+      >
+        <img
+          src={image.url}
+          alt={image.title}
+          className="w-full h-full object-cover transform transition-transform duration-300"
+        />
+        {/* Title container with hover effect */}
+        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <h3 className="text-sm font-semibold truncate">{image.title}</h3>
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      </div>
+    ))}
+  </div>
+  <ScrollBar orientation="horizontal" />
+</ScrollArea>
 
       {/* Modal Dialog with ShadCN */}
       <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>

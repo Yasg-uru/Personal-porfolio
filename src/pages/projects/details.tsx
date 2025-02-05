@@ -570,39 +570,46 @@ const ProjectDetailsPage: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.8 }}
-            className="mb-16"
+            className="mb-16 px-4 md:px-12"
           >
-            <h2 className="text-3xl font-semibold mb-6">Project Videos</h2>
+            <h2 className="text-2xl font-bold text-[#64ffda] mb-8">
+              Project Videos
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {projectDetails.videos.map((video) => (
-                <div
+                <motion.div
                   key={video._id}
-                  className="bg-gray-800 rounded-lg overflow-hidden"
+                  whileHover={{ scale: 1.05 }}
+                  className="bg-gradient-to-r from-[#64ffda] to-[#008080] rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   <video
                     controls
-                    className="w-full h-48 object-cover"
+                    className="w-full h-48 object-cover transition-all duration-500 hover:scale-105"
                     poster="/placeholder.svg"
                   >
                     <source src={video.url} type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold mb-2">
+                  <div className="p-4 bg-black bg-opacity-50">
+                    <h3 className="text-lg font-semibold text-white mb-2">
                       {video.title}
                     </h3>
-                    <Button variant="outline" className="w-full" asChild>
+                    <Button
+                      variant={null}
+                      className="w-full text-[#64ffda] border-[#64ffda] hover:bg-[#64ffda] hover:text-black transition-all duration-300"
+                      asChild
+                    >
                       <a
                         href={video.url}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Video className="h-4 w-4 mr-2" />
+                        <Video className="h-4 w-4 mr-2 text-[#64ffda]" />
                         Watch Full Video
                       </a>
                     </Button>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </motion.section>
