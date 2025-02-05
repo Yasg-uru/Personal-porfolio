@@ -242,18 +242,28 @@ const ProjectCard: React.FC<ProjectProps> = ({
             <p className="text-gray-300 text-sm line-clamp-3 mb-4">
               {currProject.description}
             </p>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {currProject.technologies
-                .slice(0, 3)
-                .map((tech: string, index: number) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="bg-gray-800/50 text-blue-400 border border-blue-500/20 hover:bg-blue-500/10 transition-colors"
-                  >
-                    {tech}
-                  </Badge>
-                ))}
+            <div className="w-full overflow-hidden relative">
+              <motion.div
+                className="flex gap-2"
+                animate={isHovered ? { x: ["0%", "-100%"] } : { x: "0%" }} // Moves only on hover
+                transition={
+                  isHovered
+                    ? { ease: "linear", duration: 10, repeat: Infinity }
+                    : {}
+                } // Stops when not hovered
+              >
+                {[...currProject.technologies, ...currProject.technologies].map(
+                  (tech, index) => (
+                    <Badge
+                      key={index}
+                      variant="secondary"
+                      className="bg-gray-800/50 text-blue-400 border border-blue-500/20 hover:bg-blue-500/10 transition-colors whitespace-nowrap"
+                    >
+                      {tech}
+                    </Badge>
+                  )
+                )}
+              </motion.div>
             </div>
 
             <div className="flex items-center gap-4 text-sm text-gray-400">

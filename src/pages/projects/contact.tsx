@@ -64,7 +64,7 @@ const Contact: React.FC = () => {
   return (
     <div 
       id="contact"
-      className="min-h-screen justify-center items-center bg-black pt-5"
+      className="min-h-screen pt-20 justify-center items-center bg-black pt-5"
     >
       <h2 className="text-3xl font-bold mb-8 text-center text-white">Get in Touch</h2>
       <motion.div

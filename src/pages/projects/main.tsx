@@ -57,7 +57,7 @@ const Projects: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black p-8">
+    <div className="min-h-screen bg-black p-8 pt-20">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-white text-4xl font-bold mb-8 text-center">
           My Projects

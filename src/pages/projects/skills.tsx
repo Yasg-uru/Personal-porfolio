@@ -56,7 +56,7 @@ export const skills = [
 
 export default function SkillsPage() {
   return (
-    <div className="min-h-screen justify-center items-center p-12 bg-black">
+    <div className="min-h-screen justify-center items-center p-12 bg-black pt-20">
       <h1 className="text-3xl font-bold text-center mb-12 text-white">
         My Skills
       </h1>
