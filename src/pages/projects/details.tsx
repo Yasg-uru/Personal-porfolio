@@ -619,26 +619,34 @@ const ProjectDetailsPage: React.FC = () => {
             id="comments"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 1 }}
+            transition={{ duration: 0.8, delay: 1 }}
+            className="px-4 md:px-12 py-8  bg-black"
           >
-            <h2 className="text-3xl font-semibold mb-6">
+            <h2 className="text-[#64ffda] text-2xl font-bold tracking-widest mb-4">
               Comments ({comments.length})
             </h2>
-            <div className="bg-gray-800 rounded-lg p-6 mb-8">
+            <div className="bg-black rounded-xl p-8 mb-12 shadow-lg">
+              {/* Comment Input Area */}
               <Textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Write a comment..."
-                className="min-h-[100px] bg-gray-700 border-gray-600 text-white mb-4"
+                className="min-h-[120px] bg-gray-700 text-white border-2 border-transparent rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-[#64ffda] transition-all duration-300 ease-in-out"
               />
-              <div className="flex justify-end">
-                <Button onClick={handleComment}>Post Comment</Button>
+              <div className="flex justify-end mt-4">
+                <Button
+                  onClick={handleComment}
+                  className="bg-[#64ffda] text-black px-6 py-3 rounded-full hover:bg-[#008080] transform transition-all duration-300 ease-in-out hover:scale-105"
+                >
+                  Post Comment
+                </Button>
               </div>
             </div>
-            <div className="space-y-6">
+
+            {/* Comments List */}
+            <div className="space-y-8">
               {comments.map((comment) => (
                 <CommentComponent
-                  key={comment._id}
                   comment={comment}
                   onLike={handleLike}
                   onDislike={handleDislike}

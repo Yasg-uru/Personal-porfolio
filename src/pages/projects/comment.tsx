@@ -41,7 +41,6 @@ const CommentComponent: React.FC<CommentComponentProps> = memo(
       user &&
       comment.likes.some((like) => like.userId._id === user._id)
     );
-    console.log('comments likes ')
 
     const [likedByUser, setLikedByUser] =
       React.useState<boolean>(isCommentLiked);
@@ -50,6 +49,7 @@ const CommentComponent: React.FC<CommentComponentProps> = memo(
       setReplyText("");
       setReplyingTo(null);
     };
+
     useEffect(() => {
       setLikedByUser(
         !!(
@@ -59,15 +59,13 @@ const CommentComponent: React.FC<CommentComponentProps> = memo(
         )
       );
     }, [comment.likes, user]);
-    console.log("this is auth user :", user?._id);
-    console.log("this is comment likes ", comment.likes);
-    // const isCommentdisLiked=isAuthenticated && user && user._id===comment.userId._id;
+
     return (
-      <Card className="bg-black border-gray-800 mb-4">
+      <Card className="bg-black border-gray-800 mb-6 p-4 rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
         <CardContent className="p-4">
           {/* Comment content */}
           <div className="flex gap-4">
-            <Avatar className="h-10 w-10">
+            <Avatar className="h-12 w-12 cursor-pointer transition-all duration-300 hover:ring-2 hover:ring-[#64ffda]">
               <AvatarImage src={comment.userId.profileUrl} />
               <AvatarFallback>
                 {comment.userId.email[0].toUpperCase()}
@@ -76,7 +74,7 @@ const CommentComponent: React.FC<CommentComponentProps> = memo(
             <div className="flex-1">
               {/* Comment header */}
               <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-200">
+                <span className="font-semibold text-[#64ffda]">
                   {comment.userId.email}
                 </span>
                 <div className="flex items-center gap-2">
@@ -86,9 +84,9 @@ const CommentComponent: React.FC<CommentComponentProps> = memo(
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
-                        variant="ghost"
+                        variant={null}
                         size="icon"
-                        className="h-8 w-8 text-gray-400 hover:text-white"
+                        className="h-8 w-8 text-gray-400 hover:text-[#64ffda]"
                       >
                         <MoreVertical className="h-4 w-4" />
                       </Button>
@@ -116,11 +114,11 @@ const CommentComponent: React.FC<CommentComponentProps> = memo(
               {/* Comment body */}
               <p className="mt-2 text-gray-300">{comment.comment}</p>
               {/* Comment actions */}
-              <div className="mt-4 flex items-center gap-4">
+              <div className="mt-4 flex items-center gap-6">
                 <Button
                   variant={null}
                   size="sm"
-                  className="flex items-center gap-1 text-gray-400 hover:text-white"
+                  className="flex items-center gap-1 text-gray-400 hover:text-[#64ffda] transition-all duration-200"
                   onClick={() => onLike(comment._id)}
                 >
                   <ThumbsUp
@@ -133,7 +131,7 @@ const CommentComponent: React.FC<CommentComponentProps> = memo(
                 <Button
                   variant={null}
                   size="sm"
-                  className="flex items-center gap-1 text-gray-400 hover:text-white"
+                  className="flex items-center gap-1 text-gray-400 hover:text-[#64ffda] transition-all duration-200"
                   onClick={() => onDislike(comment._id)}
                 >
                   <ThumbsDown className="h-4 w-4" />
@@ -142,7 +140,7 @@ const CommentComponent: React.FC<CommentComponentProps> = memo(
                 <Button
                   variant={null}
                   size="sm"
-                  className="flex items-center gap-1 text-gray-400 hover:text-white"
+                  className="flex items-center gap-1 text-gray-400 hover:text-[#64ffda] transition-all duration-200"
                   onClick={() => setReplyingTo(comment._id)}
                 >
                   <Reply className="h-4 w-4" />
@@ -156,19 +154,21 @@ const CommentComponent: React.FC<CommentComponentProps> = memo(
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
                     placeholder="Write a reply..."
-                    className="min-h-[100px] bg-black border-gray-700 text-white"
+                    className="min-h-[100px] bg-black border-gray-700 text-white focus:ring-2 focus:ring-[#64ffda]"
                   />
                   <div className="mt-2 flex justify-end gap-2">
                     <Button
-                      variant="outline"
+                      variant={null}
                       size="sm"
                       onClick={() => setReplyingTo(null)}
+                      className="hover:bg-gray-800"
                     >
                       Cancel
                     </Button>
                     <Button
                       size="sm"
                       onClick={() => handleReplySubmit(comment._id)}
+                      className="bg-[#64ffda] text-black hover:bg-[#008080] transition-all duration-200"
                     >
                       Reply
                     </Button>
@@ -177,10 +177,10 @@ const CommentComponent: React.FC<CommentComponentProps> = memo(
               )}
               {/* Replies */}
               {comment.replies.length > 0 && (
-                <div className="mt-4 space-y-4 pl-8 border-l-2 border-gray-800">
+                <div className="mt-4 space-y-4 pl-8 border-l-4 border-gray-800">
                   {comment.replies.map((reply) => (
                     <div key={reply._id} className="flex gap-4">
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-8 w-8 cursor-pointer transition-all duration-300 hover:ring-2 hover:ring-[#64ffda]">
                         <AvatarImage src={reply.userId.profileUrl} />
                         <AvatarFallback>
                           {reply.userId.email[0].toUpperCase()}
@@ -188,7 +188,7 @@ const CommentComponent: React.FC<CommentComponentProps> = memo(
                       </Avatar>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-200">
+                          <span className="font-medium text-[#64ffda]">
                             {reply.userId.email}
                           </span>
                           <span className="text-sm text-gray-400">
@@ -200,7 +200,7 @@ const CommentComponent: React.FC<CommentComponentProps> = memo(
                           variant={null}
                           onClick={() => onReplyLike(reply._id, comment._id)}
                           size="sm"
-                          className="mt-2 flex items-center gap-1 text-gray-400 hover:text-white"
+                          className="mt-2 flex items-center gap-1 text-gray-400 hover:text-[#64ffda] transition-all duration-200"
                         >
                           <Heart className="h-4 w-4" />
                           <span>{reply.likes.length}</span>
