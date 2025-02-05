@@ -1,16 +1,16 @@
-import { Button } from "@/components/ui/button";
-import { useAuthContext } from "@/context/authContext";
+// import { Button } from "@/components/ui/button";
+// import { useAuthContext } from "@/context/authContext";
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Header: React.FC = () => {
-  const { isAuthenticated, logout, isLoading } = useAuthContext();
-  const navigate = useNavigate();
+  // const { isAuthenticated, logout, isLoading } = useAuthContext();
+  // const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+  // const handleLogout = () => {
+  //   logout();
+  //   navigate("/login");
+  // };
 
   return (
     <header className="sticky top-0 z-50 bg-gray-900 bg-opacity-80 backdrop-blur-md">
@@ -18,7 +18,7 @@ const Header: React.FC = () => {
         <div className="container mx-auto flex justify-between items-center">
           <div className="text-[#64ffda] text-2xl font-bold">Y</div>
           <div className="flex items-center gap-8">
-            {[ 'Home',"skills", "contact", "projects", "experience"].map((item, i) => (
+            {[ 'Home',"skills", "contact", "projects", "experience"].map((item) => (
               <Link
                 key={item}
                 to={item==='Home'?'/':`${item.toLowerCase()}`}

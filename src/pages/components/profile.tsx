@@ -6,27 +6,26 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
-import { FaGithub, FaLinkedin, FaTwitter, FaCode } from "react-icons/fa";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useAuthContext } from "@/context/authContext";
+// import {  useNavigate } from "react-router-dom";
+import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
+
+// import { useAuthContext } from "@/context/authContext";
 import ExperienceSection from "./experience";
+import AdvancedSkills from "./skills-card";
 
 const Hero: React.FC = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
-  const { isAuthenticated, user, isLoading, logout } = useAuthContext();
+  // const { isAuthenticated, user, isLoading, logout } = useAuthContext();
   // Mouse movement animation values
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+  // const handleLogout = () => {
+  //   logout();
+  //   navigate("/login");
+  // };
   const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [7, -7]), {
     stiffness: 400,
     damping: 25,
@@ -48,32 +47,10 @@ const Hero: React.FC = () => {
     y.set(relativeY / rect.height - 0.5);
   };
 
-  const experienceData = [
-    {
-      company: "Microsoft",
-      role: "Software Engineer",
-      duration: "2022 - Present",
-    },
-    {
-      company: "Google Developer Student Clubs",
-      role: "Tech Lead",
-      duration: "2021 - 2022",
-    },
-  ];
-
-  const skills = [
-    "C/C++",
-    "Data Structures",
-    "Algorithms",
-    "React.js",
-    "Node.js",
-    "MongoDB",
-    "Express.js",
-    "TypeScript",
-  ];
+  
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white pt-28">
       {/* Hero Section */}
 
       <section
@@ -84,14 +61,7 @@ const Hero: React.FC = () => {
         className="container mx-auto px-4 pt-32 pb-16 relative"
       >
         {/* Mouse gradient follower */}
-        <motion.div
-          className="pointer-events-none fixed inset-0"
-          // animate={{
-          //   background: isHovered
-          //     ? `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(100, 255, 218, 0.15), transparent 40%)`
-          //     : "none",
-          // }}
-        />
+        <motion.div className="pointer-events-none fixed inset-0" />
         <AnimatePresence>
           {isHovered && (
             <motion.div
@@ -141,31 +111,7 @@ const Hero: React.FC = () => {
         >
           <ExperienceSection />
 
-          <Card className="bg-[#112240]/50 backdrop-blur-sm border-gray-800 hover:border-[#64ffda]/50 transition-colors">
-            <CardContent className="p-6">
-              <h3 className="text-2xl font-semibold mb-4 text-[#ccd6f6]">
-                Skills & Achievements
-              </h3>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {skills.map((skill, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
-                    <Badge className="bg-[#233554] text-[#64ffda] hover:bg-[#64ffda]/10">
-                      {skill}
-                    </Badge>
-                  </motion.div>
-                ))}
-              </div>
-              <div className="flex items-center gap-2 text-[#64ffda]">
-                <FaCode />
-                <span>650+ LeetCode problems solved</span>
-              </div>
-            </CardContent>
-          </Card>
+          <AdvancedSkills/>
         </motion.div>
 
         {/* Social Links */}
@@ -173,7 +119,7 @@ const Hero: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="fixed left-6 bottom-0 flex flex-col items-center gap-6 z-50"
+          className="fixed left-6 bottom-20 flex flex-col items-center gap-6 z-50"
         >
           <a
             href="https://github.com/yourusername"
