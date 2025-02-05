@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,28 +10,20 @@ import { useToast } from "@/hooks/use-toast";
 import { useAppDispatch, useAppSelector } from "@/state/hook";
 import { sendMessage } from "@/state/slices/authslice/authSlice";
 
-// Define Zod schema
+// Validation schema
 const contactFormSchema = z.object({
-  name: z
-    .string()
-    .min(1, { message: "Name is required" })
-    .max(50, { message: "Name is too long" }),
-  email: z
-    .string()
-    .email({ message: "Invalid email address" })
-    .nonempty({ message: "Email is required" }),
-  message: z
-    .string()
-    .min(10, { message: "Message must be at least 10 characters long" }),
+  name: z.string().min(1, "Name is required").max(50, "Name is too long"),
+  email: z.string().email("Invalid email address").nonempty("Email is required"),
+  message: z.string().min(10, "Message must be at least 10 characters long"),
 });
 
-// Form field types
 export type ContactFormInputs = z.infer<typeof contactFormSchema>;
 
 const Contact: React.FC = () => {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
   const { isLoading } = useAppSelector((state) => state.auth);
+
   const {
     control,
     handleSubmit,
@@ -41,47 +33,38 @@ const Contact: React.FC = () => {
     resolver: zodResolver(contactFormSchema),
   });
 
-  const onSubmit = async (data: ContactFormInputs) => {
- 
-      dispatch(sendMessage(data))
-        .unwrap()
-        .then(() => {
-          toast({
-            title: "message send successfully",
-          });
-        })
-        .catch((error) => {
-          toast({
-            title: error,
-            variant: "destructive",
-          });
-        });
+  const [values, setValues] = useState({ name: "", email: "", message: "" });
 
-      reset();
-   
+  const handleChange = (field: keyof typeof values, value: string) => {
+    setValues((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const onSubmit = async (data: ContactFormInputs) => {
+    dispatch(sendMessage(data))
+      .unwrap()
+      .then(() => {
+        toast({ title: "Message sent successfully" });
+      })
+      .catch((error) => {
+        toast({ title: error, variant: "destructive" });
+      });
+
+    reset();
+    setValues({ name: "", email: "", message: "" });
   };
 
   return (
-    <div 
-      id="contact"
-      className="min-h-screen pt-20 justify-center items-center bg-black "
-    >
-      <h2 className="text-3xl font-bold mb-8 text-center text-white">Get in Touch</h2>
+    <div id="contact" className="min-h-screen flex justify-center items-center bg-black px-6">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-md mx-auto"
+        transition={{ duration: 0.6 }}
+        className="bg-[#112240]/50 backdrop-blur-md shadow-lg rounded-xl p-8 max-w-lg w-full border border-[#64ffda]/20"
       >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-white">
+        <h2 className="text-3xl font-bold text-center text-[#64ffda] mb-6">Get in Touch</h2>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Name Field */}
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-300 mb-1"
-            >
-              Name
-            </label>
+          <div className="relative">
             <Controller
               name="name"
               control={control}
@@ -89,28 +72,28 @@ const Contact: React.FC = () => {
                 <Input
                   {...field}
                   id="name"
-                  placeholder="Enter your name"
-                  className={`w-full rounded-md border ${
-                    errors.name ? "border-red-500" : "border-gray-700"
-                  } bg-black px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 ${
-                    errors.name ? "focus:ring-red-500" : "focus:ring-blue-500"
-                  }`}
+                  value={values.name}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleChange("name", e.target.value);
+                  }}
+                  className="w-full px-4 py-3 text-white bg-transparent border border-gray-600 rounded-md focus:border-[#64ffda] focus:ring-2 focus:ring-[#64ffda] focus:outline-none peer"
                 />
               )}
             />
-            {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
-            )}
+            <label
+              htmlFor="name"
+              className={`absolute left-4 text-gray-400 text-sm transition-all ${
+                values.name ? "top-0 text-[#64ffda] text-xs" : "top-4 text-base"
+              }`}
+            >
+              Name
+            </label>
+            {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
           </div>
 
           {/* Email Field */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-300 mb-1"
-            >
-              Email
-            </label>
+          <div className="relative">
             <Controller
               name="email"
               control={control}
@@ -119,28 +102,28 @@ const Contact: React.FC = () => {
                   {...field}
                   id="email"
                   type="email"
-                  placeholder="Enter your email"
-                  className={`w-full rounded-md border ${
-                    errors.email ? "border-red-500" : "border-gray-700"
-                  } bg-black px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 ${
-                    errors.email ? "focus:ring-red-500" : "focus:ring-blue-500"
-                  }`}
+                  value={values.email}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleChange("email", e.target.value);
+                  }}
+                  className="w-full px-4 py-3 text-white bg-transparent border border-gray-600 rounded-md focus:border-[#64ffda] focus:ring-2 focus:ring-[#64ffda] focus:outline-none peer"
                 />
               )}
             />
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
-            )}
+            <label
+              htmlFor="email"
+              className={`absolute left-4 text-gray-400 text-sm transition-all ${
+                values.email ? "top-0 text-[#64ffda] text-xs" : "top-4 text-base"
+              }`}
+            >
+              Email
+            </label>
+            {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
           </div>
 
           {/* Message Field */}
-          <div>
-            <label
-              htmlFor="message"
-              className="block text-sm font-medium text-gray-300 mb-1"
-            >
-              Message
-            </label>
+          <div className="relative">
             <Controller
               name="message"
               control={control}
@@ -148,30 +131,36 @@ const Contact: React.FC = () => {
                 <Textarea
                   {...field}
                   id="message"
-                  placeholder="Write your message here"
+                  value={values.message}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleChange("message", e.target.value);
+                  }}
                   rows={4}
-                  className={`w-full rounded-md border ${
-                    errors.message ? "border-red-500" : "border-gray-700"
-                  } bg-black px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 ${
-                    errors.message
-                      ? "focus:ring-red-500"
-                      : "focus:ring-blue-500"
-                  }`}
+                  className="w-full px-4 py-3 text-white bg-transparent border border-gray-600 rounded-md focus:border-[#64ffda] focus:ring-2 focus:ring-[#64ffda] focus:outline-none peer"
                 />
               )}
             />
-            {errors.message && (
-              <p className="text-sm text-red-500">{errors.message.message}</p>
-            )}
+            <label
+              htmlFor="message"
+              className={`absolute left-4 text-gray-400 text-sm transition-all ${
+                values.message ? "top-0 text-[#64ffda] text-xs" : "top-4 text-base"
+              }`}
+            >
+              Message
+            </label>
+            {errors.message && <p className="text-sm text-red-500">{errors.message.message}</p>}
           </div>
 
           {/* Submit Button */}
-          <Button
+          <motion.button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full bg-[#64ffda] text-black font-bold py-3 px-6 rounded-md transition-all hover:bg-[#52e0c4]"
           >
-            {!isLoading ? "Send Message" : "...Sending"}
-          </Button>
+            {!isLoading ? "Send Message" : "Sending..."}
+          </motion.button>
         </form>
       </motion.div>
     </div>

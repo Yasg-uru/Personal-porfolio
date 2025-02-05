@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,28 +10,23 @@ import { useToast } from "@/hooks/use-toast";
 import { useAppDispatch, useAppSelector } from "@/state/hook";
 import { sendMessage } from "@/state/slices/authslice/authSlice";
 
-// Define Zod schema
+// Zod validation schema
 const contactFormSchema = z.object({
-  name: z
-    .string()
-    .min(1, { message: "Name is required" })
-    .max(50, { message: "Name is too long" }),
+  name: z.string().min(1, "Name is required").max(50, "Name is too long"),
   email: z
     .string()
-    .email({ message: "Invalid email address" })
-    .nonempty({ message: "Email is required" }),
-  message: z
-    .string()
-    .min(10, { message: "Message must be at least 10 characters long" }),
+    .email("Invalid email address")
+    .nonempty("Email is required"),
+  message: z.string().min(10, "Message must be at least 10 characters long"),
 });
 
-// Form field types
 export type ContactFormInputs = z.infer<typeof contactFormSchema>;
 
 const Contact: React.FC = () => {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
   const { isLoading } = useAppSelector((state) => state.auth);
+
   const {
     control,
     handleSubmit,
@@ -41,139 +36,152 @@ const Contact: React.FC = () => {
     resolver: zodResolver(contactFormSchema),
   });
 
-  const onSubmit = async (data: ContactFormInputs) => {
- 
-      dispatch(sendMessage(data))
-        .unwrap()
-        .then(() => {
-          toast({
-            title: "message send successfully",
-          });
-        })
-        .catch((error) => {
-          toast({
-            title: error,
-            variant: "destructive",
-          });
-        });
+  const [values, setValues] = useState({ name: "", email: "", message: "" });
 
-      reset();
-   
+  const handleChange = (field: keyof typeof values, value: string) => {
+    setValues((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const onSubmit = async (data: ContactFormInputs) => {
+    dispatch(sendMessage(data))
+      .unwrap()
+      .then(() => {
+        toast({ title: "Message sent successfully" });
+      })
+      .catch((error) => {
+        toast({ title: error, variant: "destructive" });
+      });
+
+    reset();
+    setValues({ name: "", email: "", message: "" });
   };
 
   return (
-    <section
-      id="contact"
-      className="container mx-auto px-4 py-16 md:px-6 md:py-24"
-    >
-      <h2 className="text-3xl font-bold mb-8 text-center">Get in Touch</h2>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-md mx-auto"
-      >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Name Field */}
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-300 mb-1"
-            >
-              Name
-            </label>
-            <Controller
-              name="name"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  id="name"
-                  placeholder="Enter your name"
-                  className={`w-full rounded-md border ${
-                    errors.name ? "border-red-500" : "border-gray-700"
-                  } bg-black px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 ${
-                    errors.name ? "focus:ring-red-500" : "focus:ring-blue-500"
-                  }`}
-                />
+    <section className="container mx-auto py-10">
+      <h2 className="text-2xl italic font-bold text-center text-[#64ffda] mb-8">
+        Get in Touch
+      </h2>
+      <div className="flex justify-center items-center">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-[#112240]/50 backdrop-blur-md shadow-lg rounded-xl p-8 max-w-lg w-full border border-[#64ffda]/20"
+        >
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* Name Field */}
+            <div className="relative">
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="name"
+                    value={values.name}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleChange("name", e.target.value);
+                    }}
+                    className="w-full px-4 py-3 text-white bg-transparent border border-gray-600 rounded-md focus:border-[#64ffda] focus:ring-2 focus:ring-[#64ffda] focus:outline-none peer"
+                  />
+                )}
+              />
+              <label
+                htmlFor="name"
+                className={`absolute left-4 text-gray-400 text-sm transition-all ${
+                  values.name
+                    ? "top-0 text-[#64ffda] text-xs"
+                    : "top-4 text-base"
+                }`}
+              >
+                Name
+              </label>
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name.message}</p>
               )}
-            />
-            {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
-            )}
-          </div>
+            </div>
 
-          {/* Email Field */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-300 mb-1"
-            >
-              Email
-            </label>
-            <Controller
-              name="email"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  className={`w-full rounded-md border ${
-                    errors.email ? "border-red-500" : "border-gray-700"
-                  } bg-black px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 ${
-                    errors.email ? "focus:ring-red-500" : "focus:ring-blue-500"
-                  }`}
-                />
+            {/* Email Field */}
+            <div className="relative">
+              <Controller
+                name="email"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="email"
+                    type="email"
+                    value={values.email}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleChange("email", e.target.value);
+                    }}
+                    className="w-full px-4 py-3 text-white bg-transparent border border-gray-600 rounded-md focus:border-[#64ffda] focus:ring-2 focus:ring-[#64ffda] focus:outline-none peer"
+                  />
+                )}
+              />
+              <label
+                htmlFor="email"
+                className={`absolute left-4 text-gray-400 text-sm transition-all ${
+                  values.email
+                    ? "top-0 text-[#64ffda] text-xs"
+                    : "top-4 text-base"
+                }`}
+              >
+                Email
+              </label>
+              {errors.email && (
+                <p className="text-sm text-red-500">{errors.email.message}</p>
               )}
-            />
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
-            )}
-          </div>
+            </div>
 
-          {/* Message Field */}
-          <div>
-            <label
-              htmlFor="message"
-              className="block text-sm font-medium text-gray-300 mb-1"
-            >
-              Message
-            </label>
-            <Controller
-              name="message"
-              control={control}
-              render={({ field }) => (
-                <Textarea
-                  {...field}
-                  id="message"
-                  placeholder="Write your message here"
-                  rows={4}
-                  className={`w-full rounded-md border ${
-                    errors.message ? "border-red-500" : "border-gray-700"
-                  } bg-black px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 ${
-                    errors.message
-                      ? "focus:ring-red-500"
-                      : "focus:ring-blue-500"
-                  }`}
-                />
+            {/* Message Field */}
+            <div className="relative">
+              <Controller
+                name="message"
+                control={control}
+                render={({ field }) => (
+                  <Textarea
+                    {...field}
+                    id="message"
+                    value={values.message}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleChange("message", e.target.value);
+                    }}
+                    rows={4}
+                    className="w-full px-4 py-3 text-white bg-transparent border border-gray-600 rounded-md focus:border-[#64ffda] focus:ring-2 focus:ring-[#64ffda] focus:outline-none peer"
+                  />
+                )}
+              />
+              <label
+                htmlFor="message"
+                className={`absolute left-4 text-gray-400 text-sm transition-all ${
+                  values.message
+                    ? "top-0 text-[#64ffda] text-xs"
+                    : "top-4 text-base"
+                }`}
+              >
+                Message
+              </label>
+              {errors.message && (
+                <p className="text-sm text-red-500">{errors.message.message}</p>
               )}
-            />
-            {errors.message && (
-              <p className="text-sm text-red-500">{errors.message.message}</p>
-            )}
-          </div>
+            </div>
 
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-300"
-          >
-            {!isLoading ? "Send Message" : "...Sending"}
-          </Button>
-        </form>
-      </motion.div>
+            {/* Submit Button */}
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full bg-[#64ffda] text-black font-bold py-3 px-6 rounded-md transition-all hover:bg-[#52e0c4]"
+            >
+              {!isLoading ? "Send Message" : "Sending..."}
+            </motion.button>
+          </form>
+        </motion.div>
+      </div>
     </section>
   );
 };

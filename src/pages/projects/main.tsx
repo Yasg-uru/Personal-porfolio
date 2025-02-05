@@ -59,9 +59,15 @@ const Projects: React.FC = () => {
   return (
     <div className="min-h-screen bg-black p-8 pt-20">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-white text-4xl font-bold mb-8 text-center">
-          My Projects
-        </h1>
+      <div className="text-center mb-12">
+          {/* Updated heading */}
+          <h1 className="text-[#64ffda] text-2xl font-bold tracking-widest mb-4">
+            My Projects
+          </h1>
+          <p className="text-white text-lg font-medium">
+            Check out some of the amazing projects I’ve built as a full-stack developer
+          </p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {projects.map((project, index) => (
             <ProjectCard
