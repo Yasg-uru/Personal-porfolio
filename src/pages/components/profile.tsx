@@ -6,26 +6,26 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
 
-import { useAuthContext } from "@/context/authContext";
+// import { useAuthContext } from "@/context/authContext";
 import ExperienceSection from "./experience";
 import AdvancedSkills from "./skills-card";
 
 const Hero: React.FC = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
-  const { isAuthenticated, user, isLoading, logout } = useAuthContext();
+  // const { isAuthenticated, user, isLoading, logout } = useAuthContext();
   // Mouse movement animation values
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+  // const handleLogout = () => {
+  //   logout();
+  //   navigate("/login");
+  // };
   const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [7, -7]), {
     stiffness: 400,
     damping: 25,

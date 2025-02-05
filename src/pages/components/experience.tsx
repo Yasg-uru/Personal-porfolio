@@ -92,7 +92,7 @@ const ExperienceSection = () => {
                   </h4>
                   <p className="text-gray-400">{exp.role}</p>
                   <p className="text-sm text-gray-500">{exp.duration}</p>
-                  <div className="mt-2 text-gray-300">
+                  <div className="mt-2 text-[#64ffda]">
                     {index === currentExpIndex && (
                       <Typewriter
                         words={[exp.description[currentDescIndex]]}
