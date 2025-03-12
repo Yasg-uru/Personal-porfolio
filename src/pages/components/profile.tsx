@@ -35,7 +35,7 @@ const Hero: React.FC = () => {
   const descriptions = [
     "An aspiring software engineer with the ability to grow as an individual and learn in the surrounding of talented people.",
     "Specialized in building exceptional digital experiences.",
-    "A problem solver with a passion for solving complex LeetCode problems. Solved 650+ problems!",
+    "A problem solver with a passion for solving complex LeetCode problems. Solved 800+ problems!",
     "Writes everything in the latest technologies like TypeScript and currently working on CrushSphere.",
   ];
 
