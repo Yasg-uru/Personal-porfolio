@@ -36,7 +36,7 @@ const Header: React.FC = () => {
 
           {/* Navigation Links */}
           <div className="flex items-center gap-8">
-            {["Home", "skills", "contact", "projects", "experience"].map(
+            {["Home","about", "skills", "contact", "projects", ].map(
               (item) => (
                 <Link
                   key={item}

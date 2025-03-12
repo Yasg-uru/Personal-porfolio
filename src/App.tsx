@@ -12,6 +12,7 @@ import SkillsPage from "./pages/projects/skills";
 import Header from "./pages/components/header";
 import Contact from "./pages/projects/contact";
 import MainPage from "./pages/MainPage";
+import AboutMeSection from "./pages/projects/createproject/about_me";
 
 
 // export const socket = io("http://localhost:8001");
@@ -29,6 +30,7 @@ const App: React.FC = () => {
         <Route path="/details/:id" element={<Details />} />
         <Route path="/register" element={<RegisterUser />} />
         <Route path="/login" element={<LoginUser />} />
+        <Route path="/about" element={<AboutMeSection/>} />
       </Routes>
     </>
   );
