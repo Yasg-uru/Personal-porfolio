@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BookOpen, Briefcase, Code, Github, Linkedin, Mail, MapPin, Sparkles, Trophy, User } from "lucide-react"
-
+import YashChoudhary from "../../../assets/my_images/yash-choudhary-image .jpg"
 export default function AboutMeSection() {
   const [activeTab, setActiveTab] = useState("about")
 
@@ -13,7 +13,7 @@ export default function AboutMeSection() {
         <div className="flex flex-col gap-6">
           <div className="relative">
             <div className="aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center">
-              <img src="https://media.licdn.com/media/AAYQAQSOAAgAAQAAAAAAAB-zrMZEDXI2T62PSuT6kpB6qg.png" alt="Yash Choudhary" className="object-cover" />
+              <img src= {YashChoudhary} alt="Yash Choudhary" className="object-cover" />
             </div>
             <div className="absolute bottom-4 left-4 flex items-center gap-2">
               <Badge className="bg-background/80 backdrop-blur-sm text-foreground hover:bg-background/70">
