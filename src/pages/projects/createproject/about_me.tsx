@@ -23,6 +23,7 @@ import {
   Terminal,
 } from "lucide-react"
 import YashChoudhary from "../../../assets/my_images/yash-choudhary-image .jpg"
+import Contact from "../contact"
 // Floating particle component
 const FloatingParticle = ({ delay, duration, x, y }: { delay: number; duration: number; x: string; y: string }) => (
   <motion.div
@@ -247,7 +248,7 @@ const StatCard = ({ icon: Icon, value, label, color, delay }: any) => {
 
 export default function AdvancedAboutMe() {
   const containerRef = useRef<HTMLDivElement>(null)
-  
+  const [isContactOpen, setIsContactOpen]= useState<boolean>(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
   
@@ -676,6 +677,7 @@ export default function AdvancedAboutMe() {
             something extraordinary!
           </motion.p>
           <motion.button
+          onClick={()=>setIsContactOpen(!isContactOpen)}
             whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(6, 182, 212, 0.5)" }}
             whileTap={{ scale: 0.95 }}
             className="px-8 py-4 bg-gradient-to-r from-cyan-400 to-purple-500 text-black font-bold rounded-full hover:from-cyan-300 hover:to-purple-400 transition-all duration-300"
@@ -685,6 +687,9 @@ export default function AdvancedAboutMe() {
           </motion.button>
         </motion.div>
       </div>
+      {
+        isContactOpen && <Contact/>
+      }
     </div>
   )
 }
