@@ -197,8 +197,8 @@ export default function GitHubStatsComponent() {
       <div className="w-full max-w-7xl mx-auto p-8 space-y-8 bg-black min-h-screen">
         {/* Header */}
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-400 via-emerald-400 to-green-500 bg-clip-text text-transparent animate-pulse">
-            GitHub Activity Dashboard
+          <h1 className="text-4xl font-bold text-[#64ffda]   animate-pulse">
+            GitHub Activity 
           </h1>
           <p className="text-gray-400 text-lg">A comprehensive view of your coding journey and contribution patterns</p>
         </div>
