@@ -8,7 +8,7 @@ import {
   useMotionValue,
   useSpring,
   useTransform,
-  useScroll,
+  // useScroll,
   useAnimation,
 } from "framer-motion"
 import { FaGithub, FaLinkedin, FaTwitter, FaDownload, FaCode, FaRocket } from "react-icons/fa"
@@ -17,7 +17,7 @@ import { Pen, Code2, Sparkles, Zap, Coffee, Terminal, ChevronDown, Mail, MapPin,
 import YashChoudhary from "../../assets/my_images/yash-choudhary-image .jpg"
 import YashChoudharyResume from "../../assets/YashChoudharyResume.pdf"
 // Particle component for background animation
-const Particle = ({ index }: { index: number }) => {
+const Particle = ({ }: { index: number }) => {
   const randomDelay = Math.random() * 2
   const randomDuration = 3 + Math.random() * 4
   const randomX = Math.random() * 100
@@ -116,25 +116,25 @@ const Hero: React.FC = () => {
   const imageRef = useRef<HTMLDivElement>(null)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isHovered, setIsHovered] = useState(false)
-  const [imageLoaded, setImageLoaded] = useState(false)
+  const [, setImageLoaded] = useState(false)
   const controls = useAnimation()
 
   // Scroll animation
-  const { scrollYProgress } = useScroll()
-  const yTransform = useTransform(scrollYProgress, [0, 1], [0, -100])
+  // const { scrollYProgress } = useScroll()
+  // const yTransform = useTransform(scrollYProgress, [0, 1], [0, -100])
 
   // Mouse movement animation values
   const x = useMotionValue(0)
   const y = useMotionValue(0)
 
-  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [15, -15]), {
-    stiffness: 400,
-    damping: 25,
-  })
-  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-15, 15]), {
-    stiffness: 400,
-    damping: 25,
-  })
+  // const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [15, -15]), {
+  //   stiffness: 400,
+  //   damping: 25,
+  // })
+  // const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-15, 15]), {
+  //   stiffness: 400,
+  //   damping: 25,
+  // })
 
   // Image 3D rotation
   const imageRotateX = useSpring(useTransform(y, [-0.5, 0.5], [10, -10]), {
