@@ -1,12 +1,13 @@
 import axiosInstance from "@/helper/axiosInstanc";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { InitialState } from "./type";
 const initialState: InitialState = {
   isLoading: false,
   projects: [],
   projectDetails: null,
   realTimeLoading: false,
+  gitHubData: null
 };
 interface ValidationError {
   message: string;
@@ -190,6 +191,62 @@ export const dislike = createAsyncThunk(
     }
   }
 );
+export const fetchGitHubContributions = createAsyncThunk(
+  "github/fetchContributions",
+  async (
+    username : string,
+    {rejectWithValue}
+  ) => {
+    const query = `
+      query($username: String!) {
+        user(login: $username) {
+          contributionsCollection {
+            contributionCalendar {
+              totalContributions
+              weeks {
+                contributionDays {
+                  date
+                  contributionCount
+                  color
+                }
+              }
+            }
+          }
+        }
+      }
+    `
+
+    const variables = {
+      username,
+     
+    }
+
+    try {
+      const response = await axios.post(
+        "https://api.github.com/graphql",
+        { query, variables },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${'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'}`,
+          },
+        }
+      )
+
+      const data = response.data
+
+      if (data.errors) {
+        return rejectWithValue(data.errors)
+      }
+
+      return data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || error.message || "Unknown error"
+      )
+    }
+  }
+)
 const projectSlice = createSlice({
   name: "project",
   initialState,
@@ -224,7 +281,9 @@ const projectSlice = createSlice({
       })
       .addCase(addComment.rejected, (state) => {
         state.realTimeLoading = false;
-      });
+      }).addCase(fetchGitHubContributions.fulfilled, (state, action)=>{
+        state.gitHubData = action.payload?.data ;
+      })
   },
 });
 export const {} = projectSlice.actions;

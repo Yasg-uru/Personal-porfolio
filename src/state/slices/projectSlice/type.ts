@@ -1,10 +1,12 @@
 import { ProjectDetails } from "./details";
+import { githubData } from "./github.type";
 
 export interface InitialState {
   isLoading: boolean;
   projects: Project[];
   projectDetails: ProjectDetails | null;
   realTimeLoading:boolean;
+  gitHubData:githubData | null ;
   
 }
 export interface TeamMember {
