@@ -3,17 +3,17 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Typewriter } from "react-simple-typewriter";
 import { Pen } from "lucide-react";
-import PortfolioLoader from "./loader";
+
 import YashChoudharyResume from "../../assets/YashChoudharyResume.pdf";
 const Header: React.FC = () => {
-  const { isAuthenticated, logout, isLoading } = useAuthContext();
+  const { isAuthenticated, logout } = useAuthContext();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
-  if (isLoading) return <PortfolioLoader />;
+  
 
   return (
     <header className="sticky top-0 z-50 bg-gray-900 bg-opacity-80 backdrop-blur-md">

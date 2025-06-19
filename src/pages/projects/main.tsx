@@ -8,7 +8,8 @@ import { useNavigate } from "react-router-dom";
 import type React from "react";
 
 import ProjectCard from "./projectCard";
-import PortfolioLoader from "../components/loader";
+
+import { Loader } from "lucide-react";
 
 const Projects: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -47,7 +48,14 @@ const Projects: React.FC = () => {
         });
       });
   };
-  if (isLoading) return <PortfolioLoader />;
+  if (isLoading) {
+  return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <Loader className="w-6 h-6 text-[#64ffda] animate-spin" />
+    </div>
+  );
+}
+
   if (projects.length === 0) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
