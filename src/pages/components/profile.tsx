@@ -190,7 +190,7 @@ const Hero: React.FC = () => {
   }, [controls])
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+    <div className="min-h-screen p-10 bg-black text-white relative overflow-hidden">
       {/* Animated background particles */}
       <div className="absolute inset-0 overflow-hidden">
         {Array.from({ length: 50 }).map((_, i) => (
