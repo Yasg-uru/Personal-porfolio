@@ -13,7 +13,7 @@ import Header from "./pages/components/header";
 import Contact from "./pages/projects/contact";
 import MainPage from "./pages/MainPage";
 import AboutMeSection from "./pages/projects/createproject/about_me";
-
+import "./App.css"
 
 // export const socket = io("http://localhost:8001");
 export const socket = io("https://yash-choudhary-portfolio-backend.onrender.com");

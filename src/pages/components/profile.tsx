@@ -380,7 +380,8 @@ const Hero: React.FC = () => {
               transition={{ delay: 1.2 }}
               className="flex flex-wrap gap-4"
             >
-              <motion.button
+           <a href="#projects">
+               <motion.button
                 whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(100, 255, 218, 0.5)" }}
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-4 bg-[#64ffda] text-black font-semibold rounded-lg hover:bg-[#4fd1c7] transition-all duration-300 flex items-center gap-2"
@@ -388,6 +389,7 @@ const Hero: React.FC = () => {
                 <FaRocket />
                 View My Work
               </motion.button>
+           </a>
               <a
                             href={YashChoudharyResume} // Use the imported PDF file directly
                             download="YashChoudharyResume.pdf" // Correct filename for download
