@@ -1,82 +1,327 @@
-import { useAuthContext } from "@/context/authContext";
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Typewriter } from "react-simple-typewriter";
-import { Pen } from "lucide-react";
-
-import YashChoudharyResume from "../../assets/YashChoudharyResume.pdf";
-const Header: React.FC = () => {
-  const { isAuthenticated, logout } = useAuthContext();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+import { useState } from "react"
+import { useLocation, Link, useNavigate } from "react-router-dom"
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion"
+import {
+  Menu,
+  X,
+  Home,
+  User,
+  Code,
+  Mail,
+  FolderOpen,
   
+  LogIn,
+  LogOut,
+  Github,
+  Linkedin,
+  Twitter,
+} from "lucide-react"
+import { useAuthContext } from "@/context/authContext"
+// import { useAppDispatch } from "@/state/hook"
+
+
+
+
+const AdvancedNavbar = () => {
+
+  
+  const [isOpen, setIsOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
+
+  const { isAuthenticated, logout } = useAuthContext()
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { scrollY } = useScroll()
+
+  // Navigation items with icons and colors
+  const navItems = [
+    { name: "Home", href: "/", icon: Home, color: "#64ffda" },
+    { name: "About", href: "/about", icon: User, color: "#f093fb" },
+    { name: "Skills", href: "/skills", icon: Code, color: "#4facfe" },
+    { name: "Projects", href: "/projects", icon: FolderOpen, color: "#43e97b" },
+    { name: "Contact", href: "/contact", icon: Mail, color: "#fa709a" },
+  ]
+
+  const socialLinks = [
+    { name: "GitHub", icon: Github, href: "https://github.com/Yasg-uru", color: "#333" },
+    { name: "LinkedIn", icon: Linkedin, href: "https://www.linkedin.com/in/yash-choudhary-28766a259/", color: "#0077b5" },
+    { name: "Twitter", icon: Twitter, href: "https://x.com/yashc442", color: "#1da1f2" },
+  ]
+
+  // Handle scroll effects
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setIsScrolled(latest > 50)
+
+    // Hide/show navbar on scroll
+    if (latest > lastScrollY && latest > 100) {
+      setIsVisible(false)
+    } else {
+      setIsVisible(true)
+    }
+    setLastScrollY(latest)
+  })
+
+  const handleAuthAction = () => {
+    if (isAuthenticated) {
+      logout()
+    } else {
+      navigate("/login")
+    }
+    setIsOpen(false)
+  }
 
   return (
-    <header className="sticky top-0 z-50 bg-gray-900 bg-opacity-80 backdrop-blur-md">
-      <nav className="fixed top-0 w-full z-50 px-6 py-4 backdrop-blur-sm bg-[#0a192f]/80">
-        <div className="container mx-auto flex justify-between items-center">
-          {/* Logo */}
-          <div className="text-[#64ffda] text-2xl font-bold flex items-center">
-            <Typewriter
-              words={["Yash", "Choudhary"]}
-              loop={false}
-              typeSpeed={30}
-              deleteSpeed={10}
-              cursor
-              cursorStyle="_" // Keep a string cursor, remove the Pen from here
-            />
-            <span className="ml-1">
-              <Pen className="h-4 w-4 text-[#64ffda] animate-pulse" />
-            </span>
-          </div>
-
-          {/* Navigation Links */}
-          <div className="flex items-center gap-8">
-            {["Home","about", "skills", "contact", "projects", ].map(
-              (item) => (
-                <Link
-                  key={item}
-                  to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
-                  className="text-gray-400 hover:text-[#64ffda] transition-colors"
-                >
-                  {item}
-                </Link>
-              )
-            )}
-            {/* Resume Button */}
-            <a
-              href={YashChoudharyResume} // Use the imported PDF file directly
-              download="YashChoudharyResume.pdf" // Correct filename for download
-              className="border border-[#64ffda] text-[#64ffda] px-4 py-2 rounded hover:bg-[#64ffda]/10 transition-colors"
+    <>
+      <motion.header
+        initial={{ y: -100 }}
+        animate={{
+          y: isVisible ? 0 : -100,
+          backdropFilter: isScrolled ? "blur(20px)" : "none",
+        }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className={`fixed top-0 w-full z-50 ${isScrolled ? "bg-gray-900/90 border-b border-gray-800" : "bg-gray-900/70"}`}
+      >
+        <nav className="relative max-w-7xl mx-auto px-4 sm:px-6 py-3">
+          <div className="flex justify-between items-center">
+            {/* Logo */}
+            <motion.div 
+              className="flex items-center space-x-2" 
+              whileHover={{ scale: 1.03 }}
             >
-              Resume
-            </a>
+              <span className="text-xl font-semibold text-white">
+                Yash Choudhary
+              </span>
+            </motion.div>
 
-            {/* Auth Buttons (Login/Logout) */}
-            {isAuthenticated ? (
-              <button
-                onClick={handleLogout}
-                className="border border-[#b71c16]  text-[#b71c16] px-4 py-2 rounded hover:bg-[#b71c16]/10 transition-colors"
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-6">
+              {navItems.map((item) => {
+                // const Icon = item.icon
+                const isActive = location.pathname === item.href
+
+                return (
+                  <motion.div
+                    key={item.name}
+                    className="relative"
+                  >
+                    <Link to={item.href}>
+                      <motion.div
+                        className={`px-3 py-2 text-sm ${isActive ? "text-white" : "text-gray-400 hover:text-white"}`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {item.name}
+                      </motion.div>
+                    </Link>
+
+                    {isActive && (
+                      <motion.div
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#64ffda]"
+                        layoutId="activeIndicator"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                  </motion.div>
+                )
+              })}
+            </div>
+
+            {/* Desktop Action Buttons */}
+            <div className="hidden lg:flex items-center space-x-3">
+              {/* Social Links */}
+              <div className="flex items-center space-x-2">
+                {socialLinks.map((social) => {
+                  const Icon = social.icon
+                  return (
+                    <motion.a
+                      key={social.name}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 text-gray-400 hover:text-white"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </motion.a>
+                  )
+                })}
+              </div>
+
+              {/* Resume Button */}
+              <motion.a
+                href="/resume.pdf"
+                download
+                className="px-4 py-2 text-sm border border-[#64ffda] text-[#64ffda] rounded-md"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
               >
-                Logout
-              </button>
-            ) : (
-              <button
-                onClick={() => navigate("/login")}
-                className="border border-[#64ffda] text-[#64ffda] px-4 py-2 rounded hover:bg-[#64ffda]/10 transition-colors"
+                Resume
+              </motion.a>
+
+              {/* Auth Button */}
+              <motion.button
+                onClick={handleAuthAction}
+                className={`px-4 py-2 text-sm rounded-md flex items-center space-x-2 ${
+                  isAuthenticated
+                    ? "border border-red-500 text-red-500 hover:bg-red-500/10"
+                    : "border border-[#64ffda] text-[#64ffda] hover:bg-[#64ffda]/10"
+                }`}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
               >
-                Login
-              </button>
-            )}
+                {isAuthenticated ? (
+                  <>
+                    <LogOut className="w-4 h-4" />
+                    <span>Logout</span>
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="w-4 h-4" />
+                    <span>Login</span>
+                  </>
+                )}
+              </motion.button>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <motion.button
+              className="lg:hidden p-2 text-gray-400 hover:text-white"
+              onClick={() => setIsOpen(!isOpen)}
+              whileTap={{ scale: 0.9 }}
+            >
+              <AnimatePresence mode="wait">
+                {isOpen ? (
+                  <motion.div
+                    key="close"
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <X className="w-5 h-5" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="menu"
+                    initial={{ rotate: 90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Menu className="w-5 h-5" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
           </div>
-        </div>
-      </nav>
-    </header>
-  );
-};
+        </nav>
 
-export default Header;
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="lg:hidden bg-gray-900 border-t border-gray-800 overflow-hidden"
+            >
+              <div className="px-4 py-3 space-y-2">
+                {navItems.map((item) => {
+                  const Icon = item.icon
+                  const isActive = location.pathname === item.href
+
+                  return (
+                    <motion.div
+                      key={item.name}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Link to={item.href} onClick={() => setIsOpen(false)}>
+                        <div
+                          className={`flex items-center space-x-3 px-3 py-2 rounded-md ${
+                            isActive ? "bg-gray-800 text-white" : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                          }`}
+                        >
+                          <Icon className="w-4 h-4" />
+                          <span className="text-sm">{item.name}</span>
+                        </div>
+                      </Link>
+                    </motion.div>
+                  )
+                })}
+
+                <div className="pt-3 border-t border-gray-800 space-y-2">
+                  <div className="flex justify-center space-x-3">
+                    {socialLinks.map((social) => {
+                      const Icon = social.icon
+                      return (
+                        <motion.a
+                          key={social.name}
+                          href={social.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 text-gray-400 hover:text-white"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <Icon className="w-4 h-4" />
+                        </motion.a>
+                      )
+                    })}
+                  </div>
+
+                  <div className="flex flex-col space-y-2">
+                    <motion.a
+                      href="/resume.pdf"
+                      download
+                      className="block text-center px-4 py-2 text-sm border border-[#64ffda] text-[#64ffda] rounded-md"
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      Download Resume
+                    </motion.a>
+
+                    <motion.button
+                      onClick={handleAuthAction}
+                      className={`w-full px-4 py-2 text-sm rounded-md flex items-center justify-center space-x-2 ${
+                        isAuthenticated
+                          ? "border border-red-500 text-red-500 hover:bg-red-500/10"
+                          : "border border-[#64ffda] text-[#64ffda] hover:bg-[#64ffda]/10"
+                      }`}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      {isAuthenticated ? (
+                        <>
+                          <LogOut className="w-4 h-4" />
+                          <span>Logout</span>
+                        </>
+                      ) : (
+                        <>
+                          <LogIn className="w-4 h-4" />
+                          <span>Login</span>
+                        </>
+                      )}
+                    </motion.button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.header>
+
+      {/* Scroll Progress Indicator */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-[#64ffda] z-50 origin-left"
+        style={{ scaleX: scrollY }}
+        initial={{ scaleX: 0 }}
+      />
+    </>
+  )
+}
+
+export default AdvancedNavbar
