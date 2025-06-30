@@ -1,5 +1,4 @@
-
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
 
 import {
   SiMongodb,
@@ -9,14 +8,14 @@ import {
   SiTypescript,
   SiNextdotjs,
   SiTailwindcss,
-  SiGit, SiRabbitmq, SiRedis, SiDocker, SiSocketdotio
-} from "react-icons/si"
-import { Typewriter } from "./typwriter"
-import SkillCard from "./skill-card"
-
-
-
-
+  SiGit,
+  SiRabbitmq,
+  SiRedis,
+  SiDocker,
+  SiSocketdotio,
+} from "react-icons/si";
+import { Typewriter } from "./typwriter";
+import SkillCard from "./skill-card";
 
 // Updated skills array
 const skills = [
@@ -55,7 +54,8 @@ const skills = [
   {
     name: "TypeScript",
     icon: <SiTypescript className="text-blue-600" />,
-    description: "Typed superset of JavaScript that compiles to plain JavaScript",
+    description:
+      "Typed superset of JavaScript that compiles to plain JavaScript",
     experience: 2,
     projectCount: 20,
     proficiency: 85,
@@ -87,7 +87,8 @@ const skills = [
   {
     name: "RabbitMQ",
     icon: <SiRabbitmq className="text-indigo-500" />,
-    description: "Message broker for asynchronous communication between microservices",
+    description:
+      "Message broker for asynchronous communication between microservices",
     experience: 1,
     projectCount: 5,
     proficiency: 75,
@@ -95,7 +96,8 @@ const skills = [
   {
     name: "Redis",
     icon: <SiRedis className="text-red-500" />,
-    description: "In-memory data structure store, used as a database, cache, and message broker",
+    description:
+      "In-memory data structure store, used as a database, cache, and message broker",
     experience: 1,
     projectCount: 4,
     proficiency: 80,
@@ -111,7 +113,8 @@ const skills = [
   {
     name: "Docker",
     icon: <SiDocker className="text-blue-500" />,
-    description: "Platform for developing, shipping, and running applications in containers",
+    description:
+      "Platform for developing, shipping, and running applications in containers",
     experience: 1,
     projectCount: 4,
     proficiency: 80,
@@ -119,7 +122,8 @@ const skills = [
   {
     name: "Daisy UI",
     icon: <div className="bg-teal-500 text-white rounded-full p-2">D</div>, // Assuming a custom icon, as Daisy UI may not have an icon
-    description: "Tailwind CSS component library for building user interfaces quickly",
+    description:
+      "Tailwind CSS component library for building user interfaces quickly",
     experience: 1,
     projectCount: 5,
     proficiency: 85,
@@ -127,7 +131,8 @@ const skills = [
   {
     name: "Socket.IO",
     icon: <SiSocketdotio className="text-blue-600" />,
-    description: "Real-time bidirectional event-based communication library for Node.js",
+    description:
+      "Real-time bidirectional event-based communication library for Node.js",
     experience: 1,
     projectCount: 3,
     proficiency: 80,
@@ -143,33 +148,42 @@ export default function Skills() {
         staggerChildren: 0.1,
       },
     },
-  }
+  };
   return (
     <section className="min-h-screen bg-black py-20 flex items-center justify-center">
       <div className="container px-4">
-        <div className="text-center space-y-4 mb-16">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <h2 className="text-sm font-medium text-blue-500">SKILLS & EXPERTISE</h2>
-          </motion.div>
+        <div className="text-center space-y-4 mb-20">
+          {/* Subheading */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.5 }}
           >
-            <h1 className="text-3xl font-bold text-white sm:text-4xl md:text-5xl">
-              <Typewriter
-                text="Technologies I Work With"
-                className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"
-              />
+            <h2 className="text-xs sm:text-sm uppercase tracking-widest text-[#64ffda] font-medium">
+              Skills & Expertise
+            </h2>
+          </motion.div>
+
+          {/* Main Heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+          >
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-[#ccd6f6]">
+              <Typewriter text="Technologies I Work With" />
             </h1>
           </motion.div>
+
+          {/* Description */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <p className="mx-auto max-w-2xl text-gray-400">
-              Proficient in modern web technologies with hands-on experience in building scalable applications
+            <p className="mx-auto max-w-2xl text-[#8892b0] text-sm sm:text-base leading-relaxed">
+              I work with modern web technologies to build fast, accessible, and
+              maintainable digital experiences.
             </p>
           </motion.div>
         </div>
@@ -186,6 +200,5 @@ export default function Skills() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }
-

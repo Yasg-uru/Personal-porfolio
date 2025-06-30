@@ -2,67 +2,41 @@
 
 import { motion } from "framer-motion"
 import { Card } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import type React from "react" // Import React
+import type React from "react"
 
 interface SkillCardProps {
   name: string
   icon: React.ReactNode
-  description: string
-  experience: number
-  projectCount: number
-  proficiency: number
 }
 
-export default function SkillCard({ name, icon, description, experience, projectCount, proficiency }: SkillCardProps) {
+export default function SkillCard({ name, icon }: SkillCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      whileHover={{ scale: 1.02 }}
+      transition={{ duration: 0.6 }}
+      whileHover={{ scale: 1.035 }}
     >
-      <Card className="relative overflow-hidden border border-blue-500/10 bg-blue-950/10 backdrop-blur-sm">
+      <Card className="relative group w-full h-48 flex flex-col items-center justify-center space-y-4 rounded-2xl border border-blue-500/10 bg-blue-900/10 backdrop-blur-md shadow-md transition-all duration-300 hover:border-blue-400/30">
+        {/* Background lighting on hover */}
         <motion.div
-          className="absolute inset-0 opacity-0"
-          whileHover={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
+          className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
           style={{
             background:
-              "radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(59, 130, 246, 0.15), transparent 40%)",
+              "radial-gradient(500px circle at var(--mouse-x) var(--mouse-y), rgba(59, 130, 246, 0.12), transparent 40%)",
           }}
         />
-        <div className="p-6 space-y-4" onMouseMove={handleMouseMove}>
-          <div className="flex items-start justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="text-3xl">{icon}</div>
-              <div>
-                <h3 className="text-lg font-semibold text-white">{name}</h3>
-                <p className="text-sm text-gray-400">{description}</p>
-              </div>
-            </div>
+        
+        <div
+          className="relative z-10 flex flex-col items-center justify-center"
+          onMouseMove={handleMouseMove}
+        >
+          {/* Icon circle */}
+          <div className="w-14 h-14 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-white/10 shadow-inner text-3xl text-blue-400">
+            {icon}
           </div>
-
-          <div className="space-y-3">
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-400">Proficiency</span>
-                <span className="text-blue-400">{proficiency}%</span>
-              </div>
-              <Progress value={proficiency} className="h-1" />
-            </div>
-
-            <div className="flex justify-between text-sm">
-              <div className="flex items-center space-x-1">
-                <span className="text-gray-400">Experience:</span>
-                <span className="text-white">{experience} years</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <span className="text-gray-400">Projects:</span>
-                <span className="text-white">{projectCount}</span>
-              </div>
-            </div>
-          </div>
+          {/* Skill name */}
+          <h3 className="mt-2 text-white font-semibold text-lg text-center">{name}</h3>
         </div>
       </Card>
     </motion.div>
@@ -73,8 +47,6 @@ function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
   const rect = e.currentTarget.getBoundingClientRect()
   const x = e.clientX - rect.left
   const y = e.clientY - rect.top
-
   e.currentTarget.style.setProperty("--mouse-x", `${x}px`)
   e.currentTarget.style.setProperty("--mouse-y", `${y}px`)
 }
-
