@@ -9,7 +9,8 @@ import {
   Code,
   Mail,
   FolderOpen,
-  
+  Sun,
+  Moon,
   LogIn,
   LogOut,
   Github,
@@ -17,6 +18,7 @@ import {
   Twitter,
 } from "lucide-react"
 import { useAuthContext } from "@/context/authContext"
+import { useTheme } from "@/components/theme-provider"
 // import { useAppDispatch } from "@/state/hook"
 
 
@@ -31,9 +33,12 @@ const AdvancedNavbar = () => {
   const [lastScrollY, setLastScrollY] = useState(0)
 
   const { isAuthenticated, logout } = useAuthContext()
+  const { theme, setTheme } = useTheme()
   const location = useLocation();
   const navigate = useNavigate();
   const { scrollY } = useScroll()
+
+  const isDarkMode = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
 
   // Navigation items with icons and colors
   const navItems = [
@@ -76,12 +81,9 @@ const AdvancedNavbar = () => {
     <>
       <motion.header
         initial={{ y: -100 }}
-        animate={{
-          y: isVisible ? 0 : -100,
-          backdropFilter: isScrolled ? "blur(20px)" : "none",
-        }}
+        animate={{ y: isVisible ? 0 : -100 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className={`fixed top-0 w-full z-50 ${isScrolled ? "bg-gray-900/90 border-b border-gray-800" : "bg-gray-900/70"}`}
+        className={`glass-nav fixed top-0 w-full z-50 ${isScrolled ? "glass-nav-scrolled" : "glass-nav-rest"}`}
       >
         <nav className="relative max-w-7xl mx-auto px-4 sm:px-6 py-3">
           <div className="flex justify-between items-center">
@@ -90,7 +92,7 @@ const AdvancedNavbar = () => {
               className="flex items-center space-x-2" 
               whileHover={{ scale: 1.03 }}
             >
-              <span className="text-xl font-semibold text-white">
+              <span className="text-xl font-semibold text-foreground">
                 Yash Choudhary
               </span>
             </motion.div>
@@ -118,7 +120,7 @@ const AdvancedNavbar = () => {
 
                     {isActive && (
                       <motion.div
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#64ffda]"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
                         layoutId="activeIndicator"
                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                       />
@@ -130,6 +132,16 @@ const AdvancedNavbar = () => {
 
             {/* Desktop Action Buttons */}
             <div className="hidden lg:flex items-center space-x-3">
+              <motion.button
+                onClick={() => setTheme(isDarkMode ? "light" : "dark")}
+                className="p-2 rounded-md border border-border text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                aria-label="Toggle theme"
+              >
+                {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </motion.button>
+
               {/* Social Links */}
               <div className="flex items-center space-x-2">
                 {socialLinks.map((social) => {
@@ -154,7 +166,7 @@ const AdvancedNavbar = () => {
               <motion.a
                 href="/resume.pdf"
                 download
-                className="px-4 py-2 text-sm border border-[#64ffda] text-[#64ffda] rounded-md"
+                className="px-4 py-2 text-sm border border-primary text-primary rounded-md"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
               >
@@ -167,7 +179,7 @@ const AdvancedNavbar = () => {
                 className={`px-4 py-2 text-sm rounded-md flex items-center space-x-2 ${
                   isAuthenticated
                     ? "border border-red-500 text-red-500 hover:bg-red-500/10"
-                    : "border border-[#64ffda] text-[#64ffda] hover:bg-[#64ffda]/10"
+                    : "border border-primary text-primary hover:bg-primary/10"
                 }`}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
@@ -188,7 +200,7 @@ const AdvancedNavbar = () => {
 
             {/* Mobile Menu Button */}
             <motion.button
-              className="lg:hidden p-2 text-gray-400 hover:text-white"
+              className="lg:hidden p-2 text-foreground/70 hover:text-foreground"
               onClick={() => setIsOpen(!isOpen)}
               whileTap={{ scale: 0.9 }}
             >
@@ -227,7 +239,7 @@ const AdvancedNavbar = () => {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="lg:hidden bg-gray-900 border-t border-gray-800 overflow-hidden"
+              className="lg:hidden glass-nav-panel overflow-hidden"
             >
               <div className="px-4 py-3 space-y-2">
                 {navItems.map((item) => {
@@ -244,7 +256,7 @@ const AdvancedNavbar = () => {
                       <Link to={item.href} onClick={() => setIsOpen(false)}>
                         <div
                           className={`flex items-center space-x-3 px-3 py-2 rounded-md ${
-                            isActive ? "bg-gray-800 text-white" : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                            isActive ? "bg-accent text-accent-foreground" : "text-foreground/70 hover:bg-accent hover:text-accent-foreground"
                           }`}
                         >
                           <Icon className="w-4 h-4" />
@@ -255,7 +267,16 @@ const AdvancedNavbar = () => {
                   )
                 })}
 
-                <div className="pt-3 border-t border-gray-800 space-y-2">
+                <div className="pt-3 border-t border-border space-y-2">
+                  <motion.button
+                    onClick={() => setTheme(isDarkMode ? "light" : "dark")}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm rounded-md border border-border text-foreground hover:bg-accent hover:text-accent-foreground"
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                    <span>{isDarkMode ? "Light mode" : "Dark mode"}</span>
+                  </motion.button>
+
                   <div className="flex justify-center space-x-3">
                     {socialLinks.map((social) => {
                       const Icon = social.icon
@@ -279,7 +300,7 @@ const AdvancedNavbar = () => {
                     <motion.a
                       href="/resume.pdf"
                       download
-                      className="block text-center px-4 py-2 text-sm border border-[#64ffda] text-[#64ffda] rounded-md"
+                      className="block text-center px-4 py-2 text-sm border border-primary text-primary rounded-md"
                       whileTap={{ scale: 0.97 }}
                     >
                       Download Resume
@@ -290,7 +311,7 @@ const AdvancedNavbar = () => {
                       className={`w-full px-4 py-2 text-sm rounded-md flex items-center justify-center space-x-2 ${
                         isAuthenticated
                           ? "border border-red-500 text-red-500 hover:bg-red-500/10"
-                          : "border border-[#64ffda] text-[#64ffda] hover:bg-[#64ffda]/10"
+                          : "border border-primary text-primary hover:bg-primary/10"
                       }`}
                       whileTap={{ scale: 0.97 }}
                     >
@@ -316,7 +337,7 @@ const AdvancedNavbar = () => {
 
       {/* Scroll Progress Indicator */}
       <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-[#64ffda] z-50 origin-left"
+        className="fixed top-0 left-0 right-0 h-1 bg-primary z-50 origin-left"
         style={{ scaleX: scrollY }}
         initial={{ scaleX: 0 }}
       />

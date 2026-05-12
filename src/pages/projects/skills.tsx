@@ -104,7 +104,7 @@ const skills = [
   },
   {
     name: "ShadCN UI",
-    icon: <div className="bg-gray-800 text-white rounded-full p-2">S</div>, // Assuming a custom icon, as ShadCN UI may not have an icon
+    icon: <div className="text-white">S</div>, // Assuming a custom icon
     description: "Component library for modern UI development",
     experience: 1,
     projectCount: 3,
@@ -118,15 +118,6 @@ const skills = [
     experience: 1,
     projectCount: 4,
     proficiency: 80,
-  },
-  {
-    name: "Daisy UI",
-    icon: <div className="bg-teal-500 text-white rounded-full p-2">D</div>, // Assuming a custom icon, as Daisy UI may not have an icon
-    description:
-      "Tailwind CSS component library for building user interfaces quickly",
-    experience: 1,
-    projectCount: 5,
-    proficiency: 85,
   },
   {
     name: "Socket.IO",
@@ -149,39 +140,58 @@ export default function Skills() {
       },
     },
   };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
+
   return (
-    <section className="min-h-screen bg-black py-20 flex items-center justify-center">
-      <div className="container px-4">
-        <div className="text-center space-y-4 mb-20">
+    <section className="min-h-screen  py-24 relative overflow-hidden flex items-center justify-center">
+      {/* Background blurs */}
+      <div className="absolute top-1/4 left-0 w-[400px] h-[400px] bg-primary/5 blur-[100px] rounded-full -translate-x-1/2 pointer-events-none" />
+      <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-primary/5 blur-[100px] rounded-full translate-x-1/2 pointer-events-none" />
+
+      <div className="container px-4 relative z-10">
+        <div className="text-center space-y-6 mb-20">
           {/* Subheading */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            variants={itemVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
           >
-            <h2 className="text-xs sm:text-sm uppercase tracking-widest text-[#64ffda] font-medium">
-              Skills & Expertise
+            <h2 className="text-sm uppercase tracking-[0.3em] text-primary font-bold">
+              Technical Stack
             </h2>
           </motion.div>
 
           {/* Main Heading */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
+            variants={itemVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
           >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-[#ccd6f6]">
-              <Typewriter text="Technologies I Work With" />
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight">
+              Tools & <span className="text-primary">Technologies</span>
             </h1>
           </motion.div>
 
           {/* Description */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            variants={itemVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
           >
-            <p className="mx-auto max-w-2xl text-[#8892b0] text-sm sm:text-base leading-relaxed">
+            <p className="mx-auto max-w-2xl text-gray-400 text-lg leading-relaxed font-light">
               I work with modern web technologies to build fast, accessible, and
               maintainable digital experiences.
             </p>
@@ -191,7 +201,8 @@ export default function Skills() {
         <motion.div
           variants={containerVariants}
           initial="hidden"
-          animate="visible"
+          whileInView="visible"
+          viewport={{ once: true }}
           className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
         >
           {skills.map((skill, index) => (

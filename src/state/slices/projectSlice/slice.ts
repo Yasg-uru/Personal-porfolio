@@ -197,6 +197,14 @@ export const fetchGitHubContributions = createAsyncThunk(
     username : string,
     {rejectWithValue}
   ) => {
+    const githubToken = import.meta.env.VITE_GITHUB_TOKEN
+
+    if (!githubToken) {
+      return rejectWithValue(
+        "Missing VITE_GITHUB_TOKEN. Add a valid GitHub personal access token to your frontend environment variables."
+      )
+    }
+
     const query = `
       query($username: String!) {
         user(login: $username) {
@@ -228,7 +236,7 @@ export const fetchGitHubContributions = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${'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'}`,
+            Authorization: `Bearer ${githubToken}`,
           },
         }
       )

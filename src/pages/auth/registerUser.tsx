@@ -70,7 +70,7 @@ const RegisterUser: React.FC = () => {
       .unwrap()
       .then(() => {
         toast({
-            className:'bg-black',
+            className:'bg-background text-foreground border border-border',
           title: "Registration Successful",
           description: "You've been automatically logged in. Welcome!",
         });
@@ -94,13 +94,13 @@ const RegisterUser: React.FC = () => {
   };
 
   return (
-    <div className="bg-black min-h-screen flex justify-center items-center p-8">
-      <Card className="w-[350px] mx-auto mt-10 bg-black border border-gray-700 rounded-lg shadow-lg">
+    <div className="bg-background min-h-screen flex justify-center items-center p-8 text-foreground transition-colors duration-300">
+      <Card className="w-[350px] mx-auto mt-10 bg-card border border-border rounded-lg shadow-lg">
         <CardHeader className="text-center">
-          <CardTitle className="text-white text-lg font-bold">
+          <CardTitle className="text-foreground text-lg font-bold">
             Create an account
           </CardTitle>
-          <CardDescription className="text-gray-400 text-sm">
+          <CardDescription className="text-muted-foreground text-sm">
             Get started with our portfolio platform
           </CardDescription>
         </CardHeader>
@@ -112,7 +112,7 @@ const RegisterUser: React.FC = () => {
                 name="profileUrl"
                 render={() => (
                   <FormItem>
-                    <FormLabel className="text-white text-sm">
+                    <FormLabel className="text-foreground text-sm">
                       Profile Picture
                     </FormLabel>
                     <FormControl>
@@ -126,7 +126,7 @@ const RegisterUser: React.FC = () => {
                         />
                         <label
                           htmlFor="profile-picture"
-                          className="flex items-center justify-center w-full h-full bg-gray-800 rounded-full cursor-pointer overflow-hidden hover:ring-2 hover:ring-blue-500"
+                          className="flex items-center justify-center w-full h-full bg-muted rounded-full cursor-pointer overflow-hidden hover:ring-2 hover:ring-primary"
                         >
                           {previewUrl ? (
                             <img
@@ -135,12 +135,12 @@ const RegisterUser: React.FC = () => {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <User className="h-10 w-10 text-gray-500" />
+                            <User className="h-10 w-10 text-muted-foreground" />
                           )}
                         </label>
                       </div>
                     </FormControl>
-                    <FormDescription className="text-gray-400 text-xs">
+                    <FormDescription className="text-muted-foreground text-xs">
                       Choose a profile picture (optional).
                     </FormDescription>
                     <FormMessage />
@@ -152,15 +152,15 @@ const RegisterUser: React.FC = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white text-sm">Email</FormLabel>
+                    <FormLabel className="text-foreground text-sm">Email</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-black text-white border border-gray-600 focus:ring focus:ring-blue-500"
+                        className="bg-background text-foreground border border-border focus:ring focus:ring-primary"
                         placeholder="Enter your email"
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription className="text-gray-400 text-xs">
+                    <FormDescription className="text-muted-foreground text-xs">
                       We'll never share your email with anyone else.
                     </FormDescription>
                     <FormMessage />
@@ -172,18 +172,18 @@ const RegisterUser: React.FC = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white text-sm">
+                    <FormLabel className="text-foreground text-sm">
                       Password
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-black text-white border border-gray-600 focus:ring focus:ring-blue-500"
+                        className="bg-background text-foreground border border-border focus:ring focus:ring-primary"
                         type="password"
                         placeholder="Enter your password"
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription className="text-gray-400 text-xs">
+                    <FormDescription className="text-muted-foreground text-xs">
                       Must be at least 8 characters long.
                     </FormDescription>
                     <FormMessage />
@@ -192,7 +192,7 @@ const RegisterUser: React.FC = () => {
               />
               <Button
                 type="submit"
-                className="w-full bg-white text-black font-semibold hover:bg-gray-400 disabled:opacity-50"
+                className="w-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 disabled:opacity-50"
                 disabled={isLoading}
               >
                 {isLoading && (
@@ -204,16 +204,16 @@ const RegisterUser: React.FC = () => {
           </Form>
         </CardContent>
         <CardFooter className="flex flex-col items-center gap-4">
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted-foreground">
             If you register, you can skip the hassle of logging in. Our quick
             and seamless account creation process ensures a personalized
             portfolio experience just for you.
           </p>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="text-blue-400 underline underline-offset-4 hover:text-blue-500"
+              className="text-primary underline underline-offset-4 hover:text-primary/80"
             >
               Log in here
             </Link>

@@ -40,7 +40,7 @@ const MinimalInputField = ({ field, label, icon: Icon, type = "text", error, row
           placeholder={label}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className="w-full px-4 py-4 pl-12 text-white bg-blue-900/10 backdrop-blur-md border border-blue-500/10 rounded-2xl focus:border-blue-400/30 focus:outline-none transition-all duration-300 placeholder:text-gray-400"
+          className="w-full px-4 py-4 pl-12 text-foreground bg-background/60 backdrop-blur-md border border-border rounded-2xl focus:border-primary focus:outline-none transition-all duration-300 placeholder:text-muted-foreground"
         />
 
         <motion.div
@@ -74,7 +74,7 @@ const SuccessMessage = () => (
     initial={{ scale: 0, opacity: 0 }}
     animate={{ scale: 1, opacity: 1 }}
     exit={{ scale: 0, opacity: 0 }}
-    className="absolute inset-0 flex items-center justify-center bg-blue-900/20 backdrop-blur-md rounded-2xl border border-blue-500/10"
+    className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-md rounded-2xl border border-border"
   >
     <div className="text-center">
       <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.6 }} className="mx-auto mb-4">
@@ -105,13 +105,13 @@ const ContactInfoCard = ({ icon: Icon, label, value }: any) => (
 
       <div className="relative z-10 flex flex-col items-center justify-center">
         {/* Icon circle */}
-        <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-white/10 shadow-inner text-2xl text-blue-400">
+        <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 border border-border shadow-inner text-2xl text-primary">
           <Icon className="h-6 w-6" />
         </div>
         {/* Info */}
         <div className="text-center">
-          <p className="text-gray-400 text-xs">{label}</p>
-          <p className="text-white font-medium text-sm">{value}</p>
+          <p className="text-muted-foreground text-xs">{label}</p>
+          <p className="text-foreground font-medium text-sm">{value}</p>
         </div>
       </div>
     </Card>
@@ -167,9 +167,9 @@ const Contact = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-gray-900 text-white relative overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground relative overflow-hidden transition-colors duration-300">
       {/* Simple background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
 
       <div className="relative z-10 container mx-auto px-4 py-20">
         <div className="max-w-6xl mx-auto">
@@ -180,10 +180,10 @@ const Contact = () => {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <h1 className="text-xl md:2xl font-bold   text-[#64ffda]  mb-4">
+            <h1 className="text-xl md:2xl font-bold text-primary mb-4">
               Let's Connect
             </h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Have a project in mind? Let's collaborate and create something amazing together.
             </p>
           </motion.div>
@@ -206,7 +206,7 @@ const Contact = () => {
                 whileHover={{ scale: 1.02 }}
                 className="relative"
               >
-                <Card className="relative group w-full p-8 rounded-2xl border border-blue-500/10 bg-blue-900/10 backdrop-blur-md shadow-md transition-all duration-300 hover:border-blue-400/30">
+                <Card className="relative group w-full p-8 rounded-2xl border border-border bg-card/80 backdrop-blur-md shadow-md transition-all duration-300 hover:border-primary/30">
                   {/* Background lighting on hover */}
                   <motion.div
                     className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"
@@ -217,8 +217,8 @@ const Contact = () => {
 
                   <div className="relative z-10">
                     <div className="text-center mb-8">
-                      <h2 className="text-3xl font-bold text-white mb-2">Send Message</h2>
-                      <p className="text-gray-400">Fill out the form below and I'll get back to you soon!</p>
+                      <h2 className="text-3xl font-bold text-foreground mb-2">Send Message</h2>
+                      <p className="text-muted-foreground">Fill out the form below and I'll get back to you soon!</p>
                     </div>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -264,7 +264,7 @@ const Contact = () => {
                         disabled={isLoading}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="w-full bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/20 text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-300 hover:border-blue-400/30 hover:from-blue-600/30 hover:to-purple-600/30 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-md"
+                        className="w-full bg-primary text-primary-foreground font-semibold py-4 px-8 rounded-2xl transition-all duration-300 hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-md"
                       >
                         <div className="flex items-center justify-center gap-2">
                           {isLoading ? (

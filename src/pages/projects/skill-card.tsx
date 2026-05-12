@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Card } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import type React from "react"
 
 interface SkillCardProps {
@@ -15,38 +15,33 @@ export default function SkillCard({ name, icon }: SkillCardProps) {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      whileHover={{ scale: 1.035 }}
+      whileHover={{ y: -8 }}
     >
-      <Card className="relative group w-full h-48 flex flex-col items-center justify-center space-y-4 rounded-2xl border border-blue-500/10 bg-blue-900/10 backdrop-blur-md shadow-md transition-all duration-300 hover:border-blue-400/30">
-        {/* Background lighting on hover */}
-        <motion.div
-          className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-          style={{
-            background:
-              "radial-gradient(500px circle at var(--mouse-x) var(--mouse-y), rgba(59, 130, 246, 0.12), transparent 40%)",
-          }}
-        />
+      <Card className="group relative h-48 w-full overflow-hidden bg-white/[0.03] border-white/10 hover:border-primary/40 transition-all duration-500 backdrop-blur-md">
+        {/* Hover Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
         
-        <div
-          className="relative z-10 flex flex-col items-center justify-center"
-          onMouseMove={handleMouseMove}
-        >
-          {/* Icon circle */}
-          <div className="w-14 h-14 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-white/10 shadow-inner text-3xl text-blue-400">
+        {/* Background glow on hover */}
+        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-primary/10 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
+        <CardContent className="relative z-10 flex h-full flex-col items-center justify-center p-6 text-center">
+          {/* Icon Container */}
+          <motion.div 
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-3xl transition-all duration-300 group-hover:bg-primary/10 group-hover:border-primary/30 group-hover:text-primary shadow-[0_0_20px_rgba(0,0,0,0.2)]"
+          >
             {icon}
-          </div>
-          {/* Skill name */}
-          <h3 className="mt-2 text-white font-semibold text-lg text-center">{name}</h3>
-        </div>
+          </motion.div>
+          
+          {/* Skill Name */}
+          <h3 className="mt-4 text-xl font-bold text-white group-hover:text-primary transition-colors tracking-tight">
+            {name}
+          </h3>
+          
+          {/* Subtle line */}
+          <div className="mt-2 w-8 h-[1px] bg-white/10 group-hover:w-16 group-hover:bg-primary/50 transition-all duration-500" />
+        </CardContent>
       </Card>
     </motion.div>
   )
-}
-
-function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-  const rect = e.currentTarget.getBoundingClientRect()
-  const x = e.clientX - rect.left
-  const y = e.clientY - rect.top
-  e.currentTarget.style.setProperty("--mouse-x", `${x}px`)
-  e.currentTarget.style.setProperty("--mouse-y", `${y}px`)
 }

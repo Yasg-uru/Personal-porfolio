@@ -1,12 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Hero from './components/profile'
 
 
-import Contact from './components/contact'
 import Projects from './projects/main'
 import Layout from './components/layout'
 import  Skills  from './projects/skills'
 import GitHubStatsComponent from './components/github-stats'
+import ContactSection from './components/contact-section'
 
 
  const MainPage: React.FC = () => {
@@ -16,7 +16,7 @@ import GitHubStatsComponent from './components/github-stats'
       <GitHubStatsComponent/>
       <Projects />
       <Skills />
-      <Contact />
+      <ContactSection />
     </Layout>
   )
 }
