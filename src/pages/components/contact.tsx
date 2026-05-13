@@ -64,7 +64,7 @@ const Contact: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-[#64ffda] text-sm sm:text-base tracking-widest uppercase font-medium"
+          className="text-primary text-sm sm:text-base tracking-widest uppercase font-medium"
         >
           Contact
         </motion.h2>
@@ -129,7 +129,7 @@ const Contact: React.FC = () => {
                         field.onChange(e)
                         handleChange(name as keyof typeof values, e.target.value)
                       }}
-                      className="peer w-full px-4 py-3 text-white bg-transparent border border-white/10 rounded-md focus:outline-none focus:border-[#64ffda] focus:ring-2 focus:ring-[#64ffda] transition placeholder-transparent"
+                      className="peer w-full px-4 py-3 text-white bg-transparent border border-white/10 rounded-md focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary transition placeholder-transparent"
                     />
                   )}
                 />
@@ -137,7 +137,7 @@ const Contact: React.FC = () => {
                   htmlFor={name}
                   className={`absolute left-4 text-sm text-gray-400 transition-all pointer-events-none ${
                     values[name as keyof typeof values]
-                      ? "top-1 text-xs text-[#64ffda]"
+                      ? "top-1 text-xs text-primary"
                       : "top-3.5"
                   }`}
                 >
@@ -166,14 +166,14 @@ const Contact: React.FC = () => {
                       field.onChange(e)
                       handleChange("message", e.target.value)
                     }}
-                    className="peer w-full px-4 py-3 text-white bg-transparent border border-white/10 rounded-md focus:outline-none focus:border-[#64ffda] focus:ring-2 focus:ring-[#64ffda] transition resize-none placeholder-transparent"
+                    className="peer w-full px-4 py-3 text-white bg-transparent border border-white/10 rounded-md focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary transition resize-none placeholder-transparent"
                   />
                 )}
               />
               <label
                 htmlFor="message"
                 className={`absolute left-4 text-sm text-gray-400 transition-all pointer-events-none ${
-                  values.message ? "top-1 text-xs text-[#64ffda]" : "top-3.5"
+                  values.message ? "top-1 text-xs text-primary" : "top-3.5"
                 }`}
               >
                 Message
@@ -189,7 +189,7 @@ const Contact: React.FC = () => {
               type="submit"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              className="w-full bg-[#64ffda] text-black font-semibold py-3 px-6 rounded-md transition-all shadow-md hover:bg-[#52e0c4]"
+              className="w-full bg-primary text-black font-semibold py-3 px-6 rounded-md transition-all shadow-md hover:bg-primary/90"
             >
               {isLoading ? "Sending..." : "Send Message"}
             </motion.button>

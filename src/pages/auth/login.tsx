@@ -57,7 +57,7 @@ const LoginUser: React.FC = () => {
       .unwrap()
       .then(() => {
         toast({
-          className: "bg-black",
+          className: "bg-background text-foreground border border-border",
           title: "Login Successful",
           description: "Welcome back!",
         });
@@ -72,10 +72,10 @@ const LoginUser: React.FC = () => {
   };
 
   return (
-    <div className="bg-black min-h-screen flex justify-center items-center p-8">
-      <Card className="w-[350px] mx-auto mt-10 bg-black border border-gray-700 rounded-lg shadow-lg">
+    <div className="bg-background min-h-screen flex justify-center items-center p-8 text-foreground transition-colors duration-300">
+      <Card className="w-[350px] mx-auto mt-10 bg-card border border-border rounded-lg shadow-lg">
         <CardHeader className="text-center">
-          <CardTitle className="text-white text-lg font-bold">Log In</CardTitle>
+          <CardTitle className="text-foreground text-lg font-bold">Log In</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -85,10 +85,10 @@ const LoginUser: React.FC = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white text-sm">Email</FormLabel>
+                    <FormLabel className="text-foreground text-sm">Email</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-black text-white border border-gray-600 focus:ring focus:ring-blue-500"
+                        className="bg-background text-foreground border border-border focus:ring focus:ring-primary"
                         placeholder="Enter your email"
                         {...field}
                       />
@@ -102,10 +102,10 @@ const LoginUser: React.FC = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white text-sm">Password</FormLabel>
+                    <FormLabel className="text-foreground text-sm">Password</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-black text-white border border-gray-600 focus:ring focus:ring-blue-500"
+                        className="bg-background text-foreground border border-border focus:ring focus:ring-primary"
                         type="password"
                         placeholder="Enter your password"
                         {...field}
@@ -117,7 +117,7 @@ const LoginUser: React.FC = () => {
               />
               <Button
                 type="submit"
-                className="w-full bg-white text-black font-semibold hover:bg-gray-400 disabled:opacity-50"
+                className="w-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 disabled:opacity-50"
                 disabled={isLoading}
               >
                 {isLoading && (
@@ -129,11 +129,11 @@ const LoginUser: React.FC = () => {
           </Form>
         </CardContent>
         <CardFooter className="flex flex-col items-center gap-4">
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted-foreground">
             Don't have an account?{" "}
             <Link
               to="/register"
-              className="text-blue-400 underline underline-offset-4 hover:text-blue-500"
+              className="text-primary underline underline-offset-4 hover:text-primary/80"
             >
               Sign up here
             </Link>

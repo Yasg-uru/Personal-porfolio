@@ -57,9 +57,11 @@ export default function AdvancedSkills() {
   return (
     <>
       {/* Single Card with Skills and Achievements */}
-      <Card className="bg-[#112240]/50 backdrop-blur-sm border-gray-800 hover:border-[#64ffda]/50 transition-colors">
-        <CardContent className="p-6">
-          <h3 className="text-2xl font-semibold mb-4 text-[#ccd6f6]">Skills</h3>
+      <Card className="liquid-glass-card group relative overflow-hidden border border-white/10 bg-white/[0.022] transition-all duration-500 hover:border-white/18">
+        <div className="liquid-glass-card__sheen pointer-events-none absolute inset-0 opacity-70" />
+        <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: "radial-gradient(720px circle at 50% 0%, hsl(var(--primary) / 0.12), transparent 34%)" }} />
+        <CardContent className="relative z-10 p-6">
+          <h3 className="mb-4 text-2xl font-semibold text-[#e7ecff]">Skills</h3>
 
           {/* Horizontal scrollable skills with hover animation */}
           <div className="h-16 overflow-hidden relative mb-8">
@@ -76,7 +78,7 @@ export default function AdvancedSkills() {
                 <Badge
                   key={index}
                   variant="secondary"
-                  className="bg-gray-800/50 text-blue-400 border border-blue-500/20 hover:bg-blue-500/10 transition-colors whitespace-nowrap"
+                  className="whitespace-nowrap border border-white/12 bg-white/6 text-white/80 backdrop-blur-md transition-colors hover:border-primary/30 hover:bg-white/12 hover:text-white"
                 >
                   {skill}
                 </Badge>
@@ -86,7 +88,7 @@ export default function AdvancedSkills() {
 
           {/* Achievements Section */}
           <div className="mb-4">
-            <div className="text-[#64ffda]">
+            <div className="text-primary">
               {/* Display the last 2 achievements normally */}
               {visibleAchievements.slice(0, 2).map((achievement, index) => (
                 <motion.div
@@ -97,8 +99,8 @@ export default function AdvancedSkills() {
                   transition={{ duration: 0.5 }}
                   className="mb-2"
                 >
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <FaCode className="text-[#64ffda]" />
+                    <div className="flex items-center gap-2 text-white/75">
+                    <FaCode className="text-primary" />
                     <span>{achievement}</span>
                   </div>
                 </motion.div>
@@ -114,8 +116,8 @@ export default function AdvancedSkills() {
                   transition={{ duration: 0.5 }}
                   className="mb-4"
                 >
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <FaCode className="text-[#64ffda]" />
+                    <div className="flex items-center gap-2 text-white/75">
+                    <FaCode className="text-primary" />
                     <Typewriter
                       words={[visibleAchievements[2]]}
                       loop={false}

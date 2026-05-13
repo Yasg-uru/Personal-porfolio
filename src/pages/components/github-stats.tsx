@@ -1,15 +1,15 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Calendar, GitCommit, TrendingUp, Flame, Target, Clock } from "lucide-react"
+import { Calendar, GitCommit, TrendingUp, Flame, Target, Clock, X, Github } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useAppDispatch, useAppSelector } from "@/state/hook"
 import { fetchGitHubContributions } from "@/state/slices/projectSlice/slice"
 import { useToast } from "@/hooks/use-toast"
 import type { ContributionDay } from "@/state/slices/projectSlice/github.type"
+import { motion } from "framer-motion"
 
 export default function GitHubStatsComponent() {
   const dispatch = useAppDispatch()
@@ -19,6 +19,7 @@ export default function GitHubStatsComponent() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString())
   const [hoveredSquare, setHoveredSquare] = useState<string | null>(null)
   const [, setIsLoaded] = useState(false)
+  const activityLogRef = useRef<HTMLDivElement | null>(null)
 
   // Get all available years from the GitHub data
   const availableYears = useMemo(() => {
@@ -129,11 +130,11 @@ export default function GitHubStatsComponent() {
   }, [filteredWeeks, yearlyWeeks, selectedYear, currentYear])
 
   const getContributionColor = (count: number) => {
-    if (count === 0) return "#0a0a0a" // Black for no contributions
-    if (count <= 3) return "#ff6b35" // Light orange
-    if (count <= 6) return "#ff5722" // Medium orange
-    if (count <= 9) return "#e64a19" // Dark orange
-    return "#d84315" // Very dark orange
+    if (count === 0) return "#0f0f0f" // Dark gray for no contributions
+    if (count <= 3) return "hsl(var(--primary) / 0.25)" // Light primary
+    if (count <= 6) return "hsl(var(--primary) / 0.5)" // Medium primary
+    if (count <= 9) return "hsl(var(--primary) / 0.75)" // Dark primary
+    return "hsl(var(--primary))" // Full primary
   }
 
   const getIntensityLevel = (count: number) => {
@@ -160,277 +161,319 @@ export default function GitHubStatsComponent() {
       .unwrap()
       .then(() => {
         setIsLoaded(true)
-        toast({
-          title: "Fetched GitHub data successfully",
-        })
       })
       .catch((error) => {
         console.log("this is error ", error)
         toast({
-          title: error.toString(),
+          title: "GitHub data fetch failed",
+          description: error.toString(),
           variant: "destructive",
         })
       })
   }, [dispatch, toast])
 
+  useEffect(() => {
+    if (!selectedDay) return
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (activityLogRef.current && !activityLogRef.current.contains(event.target as Node)) {
+        setSelectedDay(null)
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown)
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown)
+    }
+  }, [selectedDay])
+
   const weeksToDisplay = selectedYear === currentYear.toString() ? filteredWeeks : yearlyWeeks
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  }
 
   return (
     <TooltipProvider>
-      <div className="w-full max-w-7xl mx-auto p-6 space-y-8 dark:bg-black min-h-screen">
-        {/* Header */}
-        <div className="text-center space-y-4 animate-in fade-in-0 duration-1000">
-          <div className="relative">
-            <h1 className="text-2xl font-bold bg-[#64ffda] bg-clip-text text-transparent animate-pulse">
-              GitHub Activity
-            </h1>
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-400/20 via-orange-500/20 to-orange-600/20 blur-xl -z-10 animate-pulse"></div>
-          </div>
-          <p className="text-gray-400 text-lg font-light">Visualizing your coding journey through time</p>
-        </div>
+      <div className="w-full bg-black relative overflow-hidden">
+        {/* Background Gradients */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
-        {/* Year Selector */}
-        <div className="flex justify-end animate-in slide-in-from-right-4 duration-700">
-          <Select value={selectedYear} onValueChange={setSelectedYear}>
-            <SelectTrigger className="w-[180px] bg-black/50 border-orange-500/30 text-gray-100 hover:bg-black/70 hover:border-orange-500/50 transition-all duration-300 backdrop-blur-sm">
-              <SelectValue placeholder="Select year" />
-            </SelectTrigger>
-            <SelectContent className="bg-black/90 border-orange-500/30 text-gray-100 backdrop-blur-md">
-              {availableYears.map((year) => (
-                <SelectItem
-                  key={year}
-                  value={year}
-                  className="hover:bg-orange-500/20 focus:bg-orange-500/20 transition-colors"
-                >
-                  {year}
-                </SelectItem>
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="w-full max-w-7xl mx-auto p-6 md:p-12 space-y-12 relative z-10"
+        >
+          {/* Header Section */}
+          <motion.div variants={itemVariants} className="text-center space-y-4">
+            <div className="flex justify-center mb-4">
+              <motion.div 
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                className="p-3 rounded-2xl bg-white/5 border border-white/10 text-primary shadow-[0_0_20px_rgba(255,0,102,0.2)]"
+              >
+                <Github size={32} />
+              </motion.div>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
+              GitHub <span className="text-primary">Contributions</span>
+            </h2>
+            <p className="text-gray-400 text-lg font-light max-w-2xl mx-auto">
+              A visual timeline of my open source journey, coding consistency, and technical growth.
+            </p>
+          </motion.div>
+
+          {/* Controls and Key Stats Container */}
+          <div className="space-y-6">
+            <motion.div variants={itemVariants} className="flex justify-between items-center">
+               <h3 className="text-xl font-semibold text-white/90">Performance Metrics</h3>
+               <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <SelectTrigger className="w-[140px] bg-white/[0.06] border-white/10 text-white hover:bg-white/[0.1] hover:border-primary/50 transition-all duration-300 backdrop-blur-2xl shadow-lg shadow-black/20">
+                  <SelectValue placeholder="Year" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#12070d]/95 border-white/10 text-white backdrop-blur-2xl shadow-2xl shadow-black/30">
+                  {availableYears.map((year) => (
+                    <SelectItem key={year} value={year} className="hover:bg-primary/15 focus:bg-primary/15 data-[state=checked]:bg-primary/20 data-[state=checked]:text-white">
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </motion.div>
+
+            {/* Key Statistics Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {[
+                { icon: GitCommit, value: gitHubData?.user?.contributionsCollection?.contributionCalendar?.totalContributions || 0, label: "Total Push", color: "primary" },
+                { icon: Calendar, value: stats.activeDays, label: "Active Days", color: "primary" },
+                { icon: Flame, value: stats.currentStreak, label: "Current Streak", color: "primary" },
+                { icon: Target, value: stats.longestStreak, label: "Best Streak", color: "primary" },
+                { icon: TrendingUp, value: stats.avgContributions, label: "Daily Avg", color: "primary" },
+                { icon: Clock, value: stats.maxDay.contributionCount, label: "Best Day", color: "primary" },
+              ].map((stat, index) => (
+                <motion.div key={index} variants={itemVariants} whileHover={{ y: -5 }}>
+                  <Card className="h-full bg-white/[0.03] border-white/10 hover:border-primary/40 transition-all duration-500 backdrop-blur-md overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <CardContent className="p-5 flex flex-col items-center text-center space-y-2 relative z-10">
+                      <div className="p-2 rounded-lg bg-primary/10 text-primary mb-1">
+                        <stat.icon size={20} />
+                      </div>
+                      <div className="text-2xl font-bold text-white group-hover:text-primary transition-colors">
+                        {stat.value}
+                      </div>
+                      <div className="text-xs text-gray-500 font-medium tracking-wider uppercase">{stat.label}</div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))}
-            </SelectContent>
-          </Select>
-        </div>
+            </div>
+          </div>
 
-        {/* Key Statistics */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 animate-in fade-in-0 duration-1000 delay-300">
-          {[
-            {
-              icon: GitCommit,
-              value: gitHubData?.user?.contributionsCollection?.contributionCalendar?.totalContributions || 0,
-              label: "Total",
-              color: "orange",
-            },
-            { icon: Calendar, value: stats.activeDays, label: "Active Days", color: "blue" },
-            { icon: Flame, value: stats.currentStreak, label: "Current Streak", color: "red" },
-            { icon: Target, value: stats.longestStreak, label: "Best Streak", color: "purple" },
-            { icon: TrendingUp, value: stats.avgContributions, label: "Daily Avg", color: "emerald" },
-            { icon: Clock, value: stats.maxDay.contributionCount, label: "Best Day", color: "pink" },
-          ].map((stat, index) => (
-            <Card
-              key={index}
-              className="group relative overflow-hidden bg-black/40 border-gray-800/50 hover:border-orange-500/50 transition-all duration-500 hover:scale-105 backdrop-blur-sm animate-in slide-in-from-bottom-4"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardContent className="p-4 text-center relative z-10">
-                <div className="flex items-center justify-center mb-2">
-                  <stat.icon className="h-5 w-5 text-orange-400 group-hover:scale-110 group-hover:text-orange-300 transition-all duration-300" />
+          {/* Contribution Grid Section */}
+          <motion.div variants={itemVariants}>
+            <Card className="bg-white/[0.03] border-white/10 hover:border-primary/20 transition-all duration-700 backdrop-blur-md overflow-hidden relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <CardHeader className="border-b border-white/5 pb-4">
+                <CardTitle className="flex items-center gap-3 text-white text-xl">
+                  <Calendar className="h-5 w-5 text-primary" />
+                  Contribution Calendar <span className="text-white/40 text-sm font-normal ml-2">({selectedYear})</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-8">
+                <div className="overflow-x-auto custom-scrollbar pb-4">
+                  <div className="flex gap-1.5 min-w-max justify-center">
+                    {/* Weekday Labels */}
+                    <div className="flex flex-col gap-1.5 pr-4 justify-start pt-1">
+                      {weekdays.map((day, index) => (
+                        <div key={index} className="h-3.5 w-4 text-[10px] text-gray-600 flex items-center justify-center font-bold">
+                          {day}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Contribution Squares */}
+                    <div className="flex gap-1.5">
+                      {weeksToDisplay.map((week, weekIndex) => (
+                        <div key={weekIndex} className="flex flex-col gap-1.5">
+                          {week.contributionDays.map((day, dayIndex) => {
+                            const squareId = `${weekIndex}-${dayIndex}`
+                            const isHovered = hoveredSquare === squareId
+                            const color = getContributionColor(day.contributionCount)
+
+                            return (
+                              <Tooltip key={squareId}>
+                                <TooltipTrigger asChild>
+                                  <motion.div
+                                    whileHover={{ scale: 1.3, zIndex: 20 }}
+                                    className="w-3.5 h-3.5 rounded-[2px] cursor-pointer transition-colors relative"
+                                    style={{
+                                      backgroundColor: color,
+                                      boxShadow: isHovered && day.contributionCount > 0 ? `0 0 10px ${color}` : "none"
+                                    }}
+                                    onClick={() => setSelectedDay(day)}
+                                    onMouseEnter={() => setHoveredSquare(squareId)}
+                                    onMouseLeave={() => setHoveredSquare(null)}
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="bg-gray-900 border-white/10 text-white p-3 shadow-2xl backdrop-blur-xl">
+                                  <div className="text-center space-y-1">
+                                    <div className="font-bold text-primary">
+                                      {day.contributionCount} Contributions
+                                    </div>
+                                    <div className="text-xs text-gray-400">{formatDate(day.date)}</div>
+                                    <div className="text-[10px] text-primary/60 uppercase tracking-tighter font-bold">
+                                      {getIntensityLevel(day.contributionCount)}
+                                    </div>
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            )
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-orange-400 group-hover:text-orange-300 transition-colors mb-1">
-                  {stat.value}
+
+                {/* Legend and Total */}
+                <div className="flex flex-col sm:flex-row items-center justify-between mt-8 pt-6 border-t border-white/5 gap-4">
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <span className="font-bold text-white">{stats.totalContributions}</span> 
+                    <span>contributions in {selectedYear}</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                    <span>Less</span>
+                    <div className="flex gap-1.5">
+                      {[0, 1, 3, 6, 9].map((count, i) => (
+                        <div key={i} className="w-3.5 h-3.5 rounded-[2px]" style={{ backgroundColor: getContributionColor(count) }} />
+                      ))}
+                    </div>
+                    <span>More</span>
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500 font-medium">{stat.label}</div>
               </CardContent>
             </Card>
-          ))}
-        </div>
+          </motion.div>
 
-        {/* Contribution Calendar */}
-        <Card className="group relative overflow-hidden bg-black/40 border-gray-800/50 hover:border-orange-500/30 transition-all  backdrop-blur-sm animate-in fade-in-0 duration-1000 delay-500">
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-          <CardHeader className="relative z-10">
-            <CardTitle className="flex items-center gap-3 text-gray-100 text-xl font-light">
-              <Calendar className="h-5 w-5 text-orange-400" />
-              Contribution Grid ({selectedYear})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 relative z-10">
-            <div className="space-y-4">
-              {/* Calendar grid */}
-              <div className="flex gap-1 justify-center">
-                {/* Weekday labels */}
-                <div className="flex flex-col gap-1 pr-2 justify-start">
-                  {weekdays.map((day, index) => (
-                    <div
-                      key={`weekday-${index}`}
-                      className="h-3 w-4 text-xs text-gray-500 flex items-center justify-center font-medium"
-                    >
-                      {day}
+          {/* Activity Insights & Achievements */}
+          <div className="grid md:grid-cols-2 gap-8">
+            <motion.div variants={itemVariants}>
+              <Card className="h-full bg-white/[0.03] border-white/10 hover:border-primary/30 transition-all duration-500 backdrop-blur-md group">
+                <CardHeader>
+                  <CardTitle className="text-white text-lg flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                    Deep Insights
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {[
+                    { label: "Productivity Peak", value: `${stats.maxDay.contributionCount} units on ${stats.maxDay.date ? new Date(stats.maxDay.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : "N/A"}`, icon: Target },
+                    { label: "Commit Consistency", value: `${weeksToDisplay.length > 0 ? ((stats.activeDays / (weeksToDisplay.length * 7)) * 100).toFixed(1) + "%" : "0%"}`, icon: GitCommit },
+                    { label: "Active Momentum", value: stats.currentStreak > 0 ? `${stats.currentStreak} day streak` : "Building pace...", icon: Flame },
+                  ].map((insight, i) => (
+                    <div key={i} className="flex justify-between items-center p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-primary/20 transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="text-primary/60"><insight.icon size={18} /></div>
+                        <span className="text-sm text-gray-400">{insight.label}</span>
+                      </div>
+                      <span className="text-sm font-bold text-white">{insight.value}</span>
                     </div>
                   ))}
-                </div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-                {/* Contribution squares */}
-                <div className="flex gap-1 overflow-x-auto pb-2">
-                  {weeksToDisplay.map((week, weekIndex) => (
-                    <div key={`week-${weekIndex}`} className="flex flex-col gap-1">
-                      {week.contributionDays.map((day, dayIndex) => {
-                        const squareId = `${weekIndex}-${dayIndex}`
-                        const isHovered = hoveredSquare === squareId
-                        const contributionColor = getContributionColor(day.contributionCount)
-
-                        return (
-                          <Tooltip key={squareId}>
-                            <TooltipTrigger asChild>
-                              <div
-                                className={`w-3 h-3 rounded-sm cursor-pointer transition-all duration-300 hover:scale-125 hover:z-10 relative animate-in fade-in-0`}
-                                style={{
-                                  backgroundColor: contributionColor,
-                                  animationDelay: `${(weekIndex * 7 + dayIndex) * 10}ms`,
-                                  boxShadow:
-                                    isHovered && day.contributionCount > 0
-                                      ? `0 0 12px ${contributionColor}`
-                                      : day.contributionCount > 0
-                                        ? `0 0 4px ${contributionColor}40`
-                                        : "none",
-                                  transform: isHovered ? "scale(1.25)" : "scale(1)",
-                                }}
-                                onClick={() => setSelectedDay(day)}
-                                onMouseEnter={() => setHoveredSquare(squareId)}
-                                onMouseLeave={() => setHoveredSquare(null)}
-                              />
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-black/90 border-orange-500/30 text-gray-100 shadow-xl backdrop-blur-md">
-                              <div className="text-center space-y-1">
-                                <div className="font-semibold text-orange-400">
-                                  {day.contributionCount} contribution{day.contributionCount !== 1 ? "s" : ""}
-                                </div>
-                                <div className="text-sm text-gray-300">{formatDate(day.date)}</div>
-                                <div className="text-xs text-gray-500">{getIntensityLevel(day.contributionCount)}</div>
-                              </div>
-                            </TooltipContent>
-                          </Tooltip>
-                        )
-                      })}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Legend */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-800/50">
-                <div className="text-sm text-gray-400">
-                  <span className="font-medium text-orange-400">{stats.totalContributions}</span> contributions in{" "}
-                  {selectedYear}
-                </div>
-                <div className="flex items-center gap-3 text-xs text-gray-500">
-                  <span>Less</span>
-                  <div className="flex gap-1">
-                    {[0, 1, 3, 6, 9].map((count, index) => (
-                      <div
-                        key={index}
-                        className="w-3 h-3 rounded-sm hover:scale-110 transition-transform cursor-pointer"
-                        style={{ backgroundColor: getContributionColor(count) }}
-                      />
+            <motion.div variants={itemVariants}>
+              <Card className="h-full bg-white/[0.03] border-white/10 hover:border-primary/30 transition-all duration-500 backdrop-blur-md group">
+                <CardHeader>
+                  <CardTitle className="text-white text-lg flex items-center gap-2">
+                    <Target className="h-5 w-5 text-primary" />
+                    Milestones
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {[
+                      { condition: stats.totalContributions > 1000, badge: "Elite Contributor", sub: "1K+ Push", icon: "🏆" },
+                      { condition: stats.longestStreak > 30, badge: "Code Warrior", sub: "30+ Day Streak", icon: "🔥" },
+                      { condition: stats.maxDay.contributionCount > 20, badge: "Power Coder", sub: "Peak Velocity", icon: "⚡" },
+                      { condition: stats.activeDays > 200, badge: "Daily Pilot", sub: "200+ Days", icon: "📅" },
+                    ].map((ach, i) => ach.condition && (
+                      <motion.div 
+                        key={i} 
+                        whileHover={{ scale: 1.05 }}
+                        className="p-3 rounded-xl bg-primary/5 border border-primary/20 flex items-center gap-3"
+                      >
+                        <span className="text-2xl">{ach.icon}</span>
+                        <div>
+                          <div className="text-[10px] font-bold text-primary uppercase tracking-tighter">{ach.badge}</div>
+                          <div className="text-xs text-white font-medium">{ach.sub}</div>
+                        </div>
+                      </motion.div>
                     ))}
                   </div>
-                  <span>More</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
 
-        {/* Activity Insights */}
-        <div className="grid md:grid-cols-2 gap-6 animate-in slide-in-from-bottom-4 duration-1000 delay-700">
-          <Card className="group relative overflow-hidden bg-black/40 border-gray-800/50 hover:border-orange-500/30 transition-all duration-500 backdrop-blur-sm">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <CardHeader className="relative z-10">
-              <CardTitle className="text-gray-100 text-lg font-light">Activity Insights</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 relative z-10">
-              {[
-                {
-                  label: "Most productive day",
-                  value: `${stats.maxDay.contributionCount} contributions on ${stats.maxDay.date ? new Date(stats.maxDay.date).toLocaleDateString() : "N/A"}`,
-                  color: "orange",
-                },
-                {
-                  label: "Consistency rate",
-                  value: `${weeksToDisplay.length > 0 ? ((stats.activeDays / weeksToDisplay.flatMap((w) => w.contributionDays).length) * 100).toFixed(1) + "%" : "0%"}`,
-                  color: "blue",
-                },
-                {
-                  label: "Current momentum",
-                  value: stats.currentStreak > 0 ? `${stats.currentStreak} day streak` : "No current streak",
-                  color: "red",
-                },
-              ].map((insight, index) => (
-                <div
-                  key={index}
-                  className="flex justify-between items-center p-3 rounded-lg bg-gray-900/30 hover:bg-gray-900/50 transition-all duration-300 hover:scale-[1.02] animate-in slide-in-from-left-4"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <span className="text-sm text-gray-300 font-medium">{insight.label}</span>
-                  <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30 hover:bg-orange-500/30 transition-colors">
-                    {insight.value}
-                  </Badge>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="group relative overflow-hidden bg-black/40 border-gray-800/50 hover:border-orange-500/30 transition-all duration-500 backdrop-blur-sm">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <CardHeader className="relative z-10">
-              <CardTitle className="text-gray-100 text-lg font-light">Achievements</CardTitle>
-            </CardHeader>
-            <CardContent className="relative z-10">
-              <div className="grid grid-cols-1 gap-3">
-                {[
-                  { condition: stats.totalContributions > 1000, badge: "🏆 1K+ Contributor", color: "orange" },
-                  { condition: stats.longestStreak > 30, badge: "🔥 30+ Day Streak", color: "red" },
-                  { condition: stats.maxDay.contributionCount > 20, badge: "⚡ Power User", color: "purple" },
-                  { condition: stats.activeDays > 200, badge: "📅 Consistent Coder", color: "blue" },
-                ].map(
-                  (achievement, index) =>
-                    achievement.condition && (
-                      <Badge
-                        key={index}
-                        className="justify-center py-2 bg-orange-500/20 text-orange-300 border-orange-500/30 hover:bg-orange-500/30 hover:scale-105 transition-all duration-300 cursor-pointer animate-in slide-in-from-right-4"
-                        style={{ animationDelay: `${index * 150}ms` }}
+          {/* Selected Day Details Overlay/Card */}
+          {selectedDay && (
+            <div className="fixed inset-0 z-[9999]">
+              <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
+              <motion.div 
+                ref={activityLogRef}
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className="fixed bottom-12 right-6 md:right-12 z-[10000] w-full max-w-sm"
+              >
+                <Card className="border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.35)] overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-primary" />
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <div className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Activity Log</div>
+                        <h4 className="text-xl font-bold text-white">{formatDate(selectedDay.date)}</h4>
+                      </div>
+                      <button
+                        onClick={() => setSelectedDay(null)}
+                        aria-label="Close activity log"
+                        className="text-gray-400 hover:text-white transition-colors rounded-full p-1 hover:bg-white/5"
                       >
-                        {achievement.badge}
-                      </Badge>
-                    ),
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Selected Day Details */}
-        {selectedDay && (
-          <Card className="relative overflow-hidden border-orange-500/50 bg-gradient-to-r from-orange-500/10 to-black/40 backdrop-blur-sm animate-in slide-in-from-bottom-4 duration-300">
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-transparent"></div>
-            <CardContent className="p-6 relative z-10">
-              <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-orange-100 text-lg">{formatDate(selectedDay.date)}</h3>
-                  <p className="text-orange-300">
-                    <span className="font-bold text-2xl">{selectedDay.contributionCount}</span> contribution
-                    {selectedDay.contributionCount !== 1 ? "s" : ""} •{" "}
-                    {getIntensityLevel(selectedDay.contributionCount)}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setSelectedDay(null)}
-                  className="text-gray-400 hover:text-orange-300 hover:bg-orange-500/20 rounded-full p-2 transition-all duration-200 hover:scale-110"
-                >
-                  ✕
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                        <X size={20} />
+                      </button>
+                    </div>
+                    <div className="flex items-end gap-3">
+                      <span className="text-5xl font-black text-primary leading-none">{selectedDay.contributionCount}</span>
+                      <div className="mb-1">
+                        <div className="text-sm font-bold text-white">Push Operations</div>
+                        <div className="text-xs text-gray-400">{getIntensityLevel(selectedDay.contributionCount)}</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          )}
+        </motion.div>
       </div>
     </TooltipProvider>
   )

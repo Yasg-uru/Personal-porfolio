@@ -33,6 +33,11 @@ interface ProjectProps {
   index: number;
   onLike: (id: string) => void;
   onClick: (id: string) => void;
+  mousePosition: {
+    x: number;
+    y: number;
+    active: boolean;
+  };
 }
 
 const ProjectCard: React.FC<ProjectProps> = ({
@@ -40,13 +45,14 @@ const ProjectCard: React.FC<ProjectProps> = ({
   index,
   onLike,
   onClick,
+  mousePosition,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const [currProject, setCurrProject] = useState<Project>(project);
+  const [spotlightPos, setSpotlightPos] = useState({ x: 0, y: 0 });
 
   const { user, isAuthenticated } = useAuthContext();
   const { toast } = useToast();
@@ -93,7 +99,7 @@ const ProjectCard: React.FC<ProjectProps> = ({
     stiffness: 400,
     damping: 25,
   });
-  const scale = useSpring(isHovered ? 1.02 : 1, {
+  const scale = useSpring(mousePosition.active ? 1.02 : 1, {
     stiffness: 400,
     damping: 25,
   });
@@ -113,17 +119,22 @@ const ProjectCard: React.FC<ProjectProps> = ({
     return () => clearTimeout(timeout);
   }, [isHovered, currProject.gallery]);
 
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+  useEffect(() => {
+    if (!cardRef.current || !mousePosition.active) {
+      x.set(0);
+      y.set(0);
+      setSpotlightPos({ x: 0, y: 0 });
+      return;
+    }
 
     const rect = cardRef.current.getBoundingClientRect();
-    const relativeX = event.clientX - rect.left;
-    const relativeY = event.clientY - rect.top;
+    const relativeX = mousePosition.x - rect.left;
+    const relativeY = mousePosition.y - rect.top;
 
-    setMousePosition({ x: relativeX, y: relativeY });
     x.set(relativeX / rect.width - 0.5);
     y.set(relativeY / rect.height - 0.5);
-  };
+    setSpotlightPos({ x: relativeX, y: relativeY });
+  }, [mousePosition, x, y]);
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -141,25 +152,29 @@ const ProjectCard: React.FC<ProjectProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       style={{ perspective: 2000 }}
       className="relative"
     >
       <AnimatePresence>
-        {isHovered && (
+        {isHovered && mousePosition.active && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 rounded-lg pointer-events-none"
+            className="absolute pointer-events-none"
             style={{
+              left: "-200px",
+              top: "-200px",
+              right: "-200px",
+              bottom: "-200px",
               background: `
                 radial-gradient(
-                  800px circle at ${mousePosition.x}px ${mousePosition.y}px,
-                  rgba(29, 78, 216, 0.15),
-                  transparent 40%
+                  1200px circle at ${spotlightPos.x}px ${spotlightPos.y}px,
+                  hsl(var(--primary) / 0.28),
+                  hsl(var(--primary) / 0.12) 30%,
+                  transparent 70%
                 )
               `,
             }}
@@ -178,36 +193,13 @@ const ProjectCard: React.FC<ProjectProps> = ({
       >
         <Card
           onClick={() => onClick(currProject._id)}
-          className="relative bg-gray- backdrop-blur-sm border border-gray-800 hover:border-blue-500/50 transition-all duration-300 overflow-hidden group"
+          className="liquid-glass-card relative group overflow-visible border border-white/10 bg-white/[0.022] text-white transition-all duration-500 transform-gpu"
         >
-          <AnimatePresence>
-            {isHovered && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 rounded-lg pointer-events-none"
-                style={{
-                  background: `
-                radial-gradient(
-                  800px circle at ${mousePosition.x}px ${mousePosition.y}px,
-                  rgba(29, 78, 216, 0.15),
-                  transparent 40%
-                )
-              `,
-                }}
-              />
-            )}
-          </AnimatePresence>
-          <CardHeader className="p-4 relative">
-            <motion.div className="relative w-full h-48 overflow-hidden rounded-lg">
+          <CardHeader className="relative z-10 p-4 overflow-hidden rounded-lg">
+            <motion.div className="relative w-full h-48 overflow-hidden rounded-2xl border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.12),0_10px_24px_rgba(0,0,0,0.3)]">
               <AnimatePresence mode="wait">
                 <motion.img
                   key={currentImageIndex}
-                  src={
-                    currProject.gallery[currentImageIndex]?.url ||
-                    "/placeholder.svg"
-                  }
                   alt={currProject.title}
                   initial={{ opacity: 0, scale: 1.1 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -216,33 +208,32 @@ const ProjectCard: React.FC<ProjectProps> = ({
                   className="w-full h-full object-cover"
                 />
               </AnimatePresence>
-              {/* Image overlay gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/50 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
             </motion.div>
 
             <motion.h2
-              className="text-white text-xl font-semibold truncate mt-4"
+              className="mt-4 truncate text-xl font-semibold text-white"
               style={{ transform: "translateZ(30px)" }}
             >
               {currProject.title}
             </motion.h2>
 
             <motion.div
-              className="flex items-center gap-2 mt-2"
+              className="mt-2 flex items-center gap-2"
               style={{ transform: "translateZ(20px)" }}
             >
-              <Github className="w-4 h-4 text-blue-400" />
-              <span className="text-sm text-gray-300 truncate">
+              <Github className="w-4 h-4 text-primary" />
+              <span className="truncate text-sm text-white/70">
                 {currProject.repository.split("/").slice(-2).join("/")}
               </span>
             </motion.div>
           </CardHeader>
 
-          <CardContent className="p-4">
-            <p className="text-gray-300 text-sm line-clamp-3 mb-4">
+          <CardContent className="relative z-10 p-4 overflow-hidden rounded-lg">
+            <p className="mb-4 line-clamp-3 text-sm text-white/72">
               {currProject.description}
             </p>
-            <div className="w-full overflow-hidden relative">
+            <div className="relative w-full overflow-hidden">
               <motion.div
                 className="flex gap-2"
                 animate={isHovered ? { x: ["0%", "-100%"] } : { x: "0%" }} // Moves only on hover
@@ -257,7 +248,7 @@ const ProjectCard: React.FC<ProjectProps> = ({
                     <Badge
                       key={index}
                       variant="secondary"
-                      className="bg-gray-800/50 text-blue-400 border border-blue-500/20 hover:bg-blue-500/10 transition-colors whitespace-nowrap"
+                        className="whitespace-nowrap border border-white/12 bg-white/6 text-white/80 backdrop-blur-md transition-colors hover:bg-white/12"
                     >
                       {tech}
                     </Badge>
@@ -266,7 +257,7 @@ const ProjectCard: React.FC<ProjectProps> = ({
               </motion.div>
             </div>
 
-            <div className="flex items-center gap-4 text-sm text-gray-400">
+            <div className="mt-4 flex items-center gap-4 text-sm text-white/55">
               <div className="flex items-center gap-1">
                 <Eye className="w-4 h-4" />
                 <span>{currProject.analytics?.views || 0}</span>
@@ -278,13 +269,13 @@ const ProjectCard: React.FC<ProjectProps> = ({
             </div>
           </CardContent>
 
-          <CardFooter className="p-4 flex items-center justify-between border-t border-gray-800/50">
+          <CardFooter className="relative z-10 flex items-center justify-between border-t border-white/10 p-4 overflow-hidden rounded-lg">
             <Button
               variant={null}
               size="sm"
               className={`flex items-center gap-1 transition-colors ${
-                isLiked ? "text-blue-500" : "text-gray-400"
-              } hover:text-blue-400`}
+                isLiked ? "text-primary" : "text-white/55"
+              } hover:text-white`}
               onClick={(e) => {
                 e.stopPropagation();
                 onLike(currProject._id);
@@ -301,19 +292,19 @@ const ProjectCard: React.FC<ProjectProps> = ({
             <div className="flex items-center gap-2">
               <Link
                 to={currProject.repository}
-                className="p-2 hover:bg-gray-800/50 rounded-full transition-colors"
+                className="rounded-full p-2 transition-colors hover:bg-white/10"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Github className="w-5 h-5 text-gray-400 hover:text-blue-400" />
+                <Github className="w-5 h-5 text-white/60 hover:text-white" />
               </Link>
               <Link
                 to={currProject.liveDemo}
-                className="p-2 hover:bg-gray-800/50 rounded-full transition-colors"
+                className="rounded-full p-2 transition-colors hover:bg-white/10"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <ExternalLink className="w-5 h-5 text-gray-400 hover:text-blue-400" />
+                <ExternalLink className="w-5 h-5 text-white/60 hover:text-white" />
               </Link>
             </div>
           </CardFooter>
@@ -321,7 +312,7 @@ const ProjectCard: React.FC<ProjectProps> = ({
           <Button
             variant="secondary"
             onClick={() => onClick(currProject._id)}
-            className="w-full bg-gray-800/50 hover:bg-blue-500/20 text-white hover:text-blue-400 border-t border-gray-800/50 rounded-none rounded-b-lg relative group transform-gpu"
+            className="group relative z-10 w-full rounded-none rounded-b-2xl border-t border-white/10 bg-white/[0.03] text-white/90 backdrop-blur-md transition-all duration-300 hover:bg-white/8 hover:text-white"
           >
             Get Project Details
             <ChevronRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />

@@ -22,12 +22,13 @@ import {
   Monitor,
   Terminal,
 } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
 import YashChoudhary from "../../../assets/my_images/yash-choudhary-image .jpg"
-import Contact from "../contact"
+import ContactDialog from "../../../components/ContactDialog"
 // Floating particle component
 const FloatingParticle = ({ delay, duration, x, y }: { delay: number; duration: number; x: string; y: string }) => (
   <motion.div
-    className="absolute w-2 h-2 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full opacity-30"
+    className="absolute w-2 h-2 bg-gradient-to-r from-pink-500 to-primary rounded-full opacity-30"
     style={{ left: x, top: y }}
     animate={{
       y: [0, -20, 0],
@@ -57,64 +58,55 @@ const SkillCard = ({
   color: string
   delay: number
 }) => {
-  const [isHovered, setIsHovered] = useState(false)
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 50, rotateX: -15 }}
-      animate={isInView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
-      transition={{ duration: 0.8, delay }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      className="relative group"
+      initial={{ opacity: 0, y: 20 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay }}
+      whileHover={{ y: -8 }}
+      className="relative group h-full"
     >
-      <motion.div
-        whileHover={{ scale: 1.05, rotateY: 5 }}
-        className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 h-full relative overflow-hidden"
-        style={{
-          boxShadow: isHovered ? `0 20px 40px ${color}20` : "0 10px 20px rgba(0,0,0,0.3)",
-        }}
-      >
-        {/* Animated background gradient */}
-        <motion.div
-          className="absolute inset-0 opacity-10"
-          animate={{
-            background: isHovered ? `linear-gradient(45deg, ${color}20, transparent, ${color}10)` : "transparent",
-          }}
-          transition={{ duration: 0.3 }}
-        />
+      <Card className="animated-border-card relative h-full w-full overflow-hidden bg-white/[0.03] border-white/10 group-hover:border-primary/40 transition-all duration-500 backdrop-blur-md">
+        {/* Hover Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+        
+        {/* Background glow on hover */}
+        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-primary/10 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
-        <div className="relative z-10">
-          <motion.div animate={{ rotate: isHovered ? 360 : 0 }} transition={{ duration: 0.8 }} className="mb-4">
-            <Icon className="h-8 w-8" style={{ color }} />
+        <CardContent className="relative z-10 flex h-full flex-col p-6">
+          {/* Icon Container */}
+          <motion.div 
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-2xl transition-all duration-300 group-hover:bg-primary/10 group-hover:border-primary/30 group-hover:text-primary shadow-[0_0_20px_rgba(0,0,0,0.2)] mb-4"
+          >
+            <Icon style={{ color: color }} />
           </motion.div>
-
-          <h3 className="text-xl font-bold text-white mb-4">{title}</h3>
-
-          <div className="space-y-2">
+          
+          {/* Skill Category Title */}
+          <h3 className="text-xl font-bold text-white group-hover:text-primary transition-colors tracking-tight mb-4">
+            {title}
+          </h3>
+          
+          <div className="space-y-3">
             {skills.map((skill, index) => (
-              <motion.div
-                key={skill}
-                initial={{ opacity: 0, x: -20 }}
-                animate={isInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.5, delay: delay + index * 0.1 }}
-                className="flex items-center gap-2"
-              >
-                <motion.div
-                  className="w-2 h-2 rounded-full"
+              <div key={skill} className="flex items-center gap-2">
+                <div
+                  className="w-1.5 h-1.5 rounded-full"
                   style={{ backgroundColor: color }}
-                  animate={{ scale: isHovered ? [1, 1.5, 1] : 1 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
                 />
-                <span className="text-gray-300 text-sm">{skill}</span>
-              </motion.div>
+                <span className="text-gray-400 text-sm group-hover:text-gray-200 transition-colors">{skill}</span>
+              </div>
             ))}
           </div>
-        </div>
-      </motion.div>
+
+          {/* Subtle line */}
+          <div className="mt-auto pt-4 w-8 h-[1px] bg-white/10 group-hover:w-16 group-hover:bg-primary/50 transition-all duration-500" />
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
@@ -147,49 +139,52 @@ const TimelineItem = ({
       className="relative pl-8 pb-8"
     >
       {/* Timeline line */}
-      <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-cyan-400 to-transparent" />
+      <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-primary to-transparent" />
 
       {/* Timeline dot */}
       <motion.div
         className={`absolute left-0 top-2 w-3 h-3 rounded-full transform -translate-x-1/2 ${
-          current ? "bg-cyan-400" : "bg-gray-600"
+          current ? "bg-primary" : "bg-gray-600"
         }`}
         animate={current ? { scale: [1, 1.3, 1], opacity: [1, 0.7, 1] } : {}}
         transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
       />
 
-      <div className="bg-gray-900/30 backdrop-blur-sm border border-gray-800 rounded-xl p-6 hover:border-cyan-400/50 transition-all duration-300">
-        <div className="flex items-start justify-between mb-2">
-          <div>
-            <h3 className="text-lg font-bold text-white">{title}</h3>
-            <p className="text-cyan-400 font-medium">{company}</p>
+      <Card className="animated-border-card relative overflow-hidden bg-white/[0.03] border-white/10 group-hover:border-primary/40 transition-all duration-500 backdrop-blur-md p-6">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+        <div className="relative z-10">
+          <div className="flex items-start justify-between mb-2">
+            <div>
+              <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors">{title}</h3>
+              <p className="text-primary/80 font-medium">{company}</p>
+            </div>
+            {current && (
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+                className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-medium border border-green-500/30"
+              >
+                Current
+              </motion.div>
+            )}
           </div>
-          {current && (
-            <motion.div
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-              className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-medium"
-            >
-              Current
-            </motion.div>
-          )}
+          <p className="text-gray-400 text-sm mb-4">{period}</p>
+          <ul className="space-y-2">
+            {description.map((item, index) => (
+              <motion.li
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={isInView ? { opacity: 1, x: 0 } : {}}
+                transition={{ duration: 0.5, delay: delay + index * 0.1 }}
+                className="text-gray-300 text-sm flex items-start gap-2 group/item"
+              >
+                <Zap className="h-3 w-3 text-primary mt-1 flex-shrink-0 group-hover/item:scale-125 transition-transform" />
+                <span className="group-hover/item:text-white transition-colors">{item}</span>
+              </motion.li>
+            ))}
+          </ul>
         </div>
-        <p className="text-gray-400 text-sm mb-3">{period}</p>
-        <ul className="space-y-1">
-          {description.map((item, index) => (
-            <motion.li
-              key={index}
-              initial={{ opacity: 0, x: -20 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.5, delay: delay + index * 0.1 }}
-              className="text-gray-300 text-sm flex items-start gap-2"
-            >
-              <Zap className="h-3 w-3 text-cyan-400 mt-1 flex-shrink-0" />
-              {item}
-            </motion.li>
-          ))}
-        </ul>
-      </div>
+      </Card>
     </motion.div>
   )
 }
@@ -227,21 +222,24 @@ const StatCard = ({ icon: Icon, value, label, color, delay }: any) => {
       initial={{ opacity: 0, scale: 0.5 }}
       animate={isInView ? { opacity: 1, scale: 1 } : {}}
       transition={{ duration: 0.6, delay }}
-      whileHover={{ scale: 1.05, y: -5 }}
-      className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-6 text-center group hover:border-cyan-400/50 transition-all duration-300"
+      whileHover={{ y: -5 }}
+      className="relative group h-full"
     >
-      <motion.div
-        animate={{ rotate: [0, 360] }}
-        transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-        className="mb-4 flex justify-center"
-      >
-        <Icon className="h-8 w-8" style={{ color }} />
-      </motion.div>
-      <motion.div className="text-3xl font-bold text-white mb-2" style={{ color }}>
-        {typeof count === "number" ? count : value}
-        {value.includes("+") && "+"}
-      </motion.div>
-      <div className="text-gray-400 text-sm">{label}</div>
+      <Card className="animated-border-card h-full bg-white/[0.03] border-white/10 group-hover:border-primary/40 transition-all duration-500 backdrop-blur-md overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <CardContent className="p-6 flex flex-col items-center text-center space-y-3 relative z-10">
+          <div className="p-3 rounded-2xl bg-primary/10 text-primary mb-1 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
+            <Icon size={24} style={{ color: color }} />
+          </div>
+          <div className="text-3xl font-bold text-white group-hover:text-primary transition-colors">
+            {typeof count === "number" ? count : value}
+            {value.includes("+") && "+"}
+          </div>
+          <div className="text-xs text-gray-500 font-medium tracking-wider uppercase group-hover:text-gray-300 transition-colors">
+            {label}
+          </div>
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
@@ -271,7 +269,7 @@ export default function AdvancedAboutMe() {
     <div
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      className="min-h-screen bg-black text-white relative overflow-hidden"
+      className="min-h-screen bg-background text-white relative overflow-hidden"
     >
       {/* Animated background */}
       <div className="absolute inset-0">
@@ -286,14 +284,13 @@ export default function AdvancedAboutMe() {
           />
         ))}
 
-        {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black opacity-90" />
+       
 
         {/* Mouse follower gradient */}
         <motion.div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(6, 182, 212, 0.1), transparent 40%)`,
+            background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(255, 0, 102, 0.12), transparent 40%)`,
           }}
         />
       </div>
@@ -307,7 +304,7 @@ export default function AdvancedAboutMe() {
           className="text-center mb-20"
         >
           <motion.h1
-            className="text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent"
+            className="text-6xl md:text-8xl font-bold mb-6 text-primary"
             animate={{
               backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
             }}
@@ -340,20 +337,20 @@ export default function AdvancedAboutMe() {
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-                className="absolute inset-0 w-80 h-80 border-2 border-cyan-400/20 rounded-full"
+                className="absolute inset-0 w-80 h-80 border-2 border-primary/30 rounded-full"
               />
               <motion.div
                 animate={{ rotate: -360 }}
                 transition={{ duration: 15, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-                className="absolute inset-4 w-72 h-72 border border-purple-500/20 rounded-full"
+                className="absolute inset-4 w-72 h-72 border border-primary/20 rounded-full"
               />
 
               {/* Profile image */}
               <motion.div
                 whileHover={{ scale: 1.05 }}
-                className="relative w-80 h-80 rounded-full overflow-hidden border-4 border-cyan-400 mx-auto"
+                className="relative w-80 h-80 rounded-full overflow-hidden border-4 border-primary mx-auto"
                 style={{
-                  boxShadow: "0 0 50px rgba(6, 182, 212, 0.3)",
+                  boxShadow: "0 0 50px rgba(255, 0, 102, 0.4)",
                 }}
               >
                 <img
@@ -362,7 +359,7 @@ export default function AdvancedAboutMe() {
                   className="w-full h-full object-cover"
                 />
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-tr from-cyan-400/20 to-transparent"
+                  className="absolute inset-0 bg-gradient-to-tr from-primary/25 to-transparent"
                   animate={{ opacity: [0, 0.3, 0] }}
                   transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }}
                 />
@@ -372,7 +369,7 @@ export default function AdvancedAboutMe() {
               <motion.div
                 animate={{ y: [0, -10, 0], rotate: [0, 5, 0] }}
                 transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }}
-                className="absolute -top-4 -right-4 bg-cyan-400 text-black px-4 py-2 rounded-full font-bold text-sm"
+                className="absolute -top-4 -right-4 bg-primary text-black px-4 py-2 rounded-full font-bold text-sm"
               >
                 <Code className="inline mr-1 h-4 w-4" />
                 Developer
@@ -381,7 +378,7 @@ export default function AdvancedAboutMe() {
               <motion.div
                 animate={{ y: [0, 10, 0], rotate: [0, -5, 0] }}
                 transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY, delay: 1 }}
-                className="absolute -bottom-4 -left-4 bg-purple-500 text-white px-4 py-2 rounded-full font-bold text-sm"
+                className="absolute -bottom-4 -left-4 bg-primary/80 text-white px-4 py-2 rounded-full font-bold text-sm"
               >
                 <Sparkles className="inline mr-1 h-4 w-4" />
                 Creative
@@ -399,13 +396,13 @@ export default function AdvancedAboutMe() {
             <div>
               <motion.h2
                 className="text-4xl font-bold text-white mb-2"
-                animate={{ color: ["#ffffff", "#06b6d4", "#ffffff"] }}
+                animate={{ color: ["#ffffff", "#ff0066", "#ffffff"] }}
                 transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }}
               >
                 Yash Choudhary
               </motion.h2>
               <motion.p
-                className="text-2xl text-cyan-400 mb-4"
+                className="text-2xl text-primary mb-4"
                 animate={{ opacity: [0.7, 1, 0.7] }}
                 transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
               >
@@ -447,9 +444,9 @@ export default function AdvancedAboutMe() {
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.2, y: -5 }}
                   whileTap={{ scale: 0.9 }}
-                  className="p-3 bg-gray-900 rounded-full border border-gray-700 hover:border-cyan-400 transition-all duration-300"
+                  className="p-3 bg-gray-900 rounded-full border border-gray-700 hover:border-primary transition-all duration-300"
                   style={{
-                    boxShadow: `0 0 20px ${color}20`,
+                    boxShadow: `0 0 20px rgba(255, 0, 102, 0.3)`,
                   }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -469,10 +466,10 @@ export default function AdvancedAboutMe() {
           transition={{ duration: 1 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-32"
         >
-          <StatCard icon={Trophy} value="1000+" label="Problems Solved" color="#fbbf24" delay={0} />
-          <StatCard icon={Rocket} value="20+" label="Projects Built" color="#06b6d4" delay={0.1} />
-          <StatCard icon={Calendar} value="1+" label="Years Experience" color="#8b5cf6" delay={0.2} />
-          <StatCard icon={Heart} value="100%" label="Passion Level" color="#ef4444" delay={0.3} />
+          <StatCard icon={Trophy} value="1000+" label="Problems Solved" color="#ff0066" delay={0} />
+          <StatCard icon={Rocket} value="20+" label="Projects Built" color="#ff0066" delay={0.1} />
+          <StatCard icon={Calendar} value="1+" label="Years Experience" color="#ff0066" delay={0.2} />
+          <StatCard icon={Heart} value="100%" label="Passion Level" color="#ff0066" delay={0.3} />
         </motion.div>
 
         {/* Skills Section */}
@@ -483,7 +480,7 @@ export default function AdvancedAboutMe() {
           className="mb-32"
         >
           <motion.h2
-            className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent"
+            className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-primary via-pink-400 to-primary bg-clip-text text-transparent"
             animate={{
               backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
             }}
@@ -580,7 +577,7 @@ export default function AdvancedAboutMe() {
           className="mb-32"
         >
           <motion.h2
-            className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-green-400 to-blue-600 bg-clip-text text-transparent"
+            className="text-4xl font-bold text-center mb-16 text-primary"
             animate={{
               backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
             }}
@@ -595,101 +592,165 @@ export default function AdvancedAboutMe() {
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              whileHover={{ scale: 1.02, y: -5 }}
-              className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 hover:border-cyan-400/50 transition-all duration-300"
+              whileHover={{ y: -8 }}
+              className="relative group"
             >
-              <div className="flex items-center gap-4 mb-4">
-                <motion.div
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 10, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-                >
-                  <BookOpen className="h-8 w-8 text-cyan-400" />
-                </motion.div>
-                <div>
-                  <h3 className="text-xl font-bold text-white">B.Tech in Information Technology</h3>
-                  <p className="text-cyan-400">Samrat Ashok Technological Institute, Vidisha</p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">CGPA</span>
-                  <span className="text-white font-semibold">7.97/10</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Status</span>
-                  <span className="text-green-400 font-semibold">Current</span>
-                </div>
-              </div>
+              <Card className="animated-border-card relative h-full w-full overflow-hidden bg-white/[0.03] border-white/10 group-hover:border-primary/40 transition-all duration-500 backdrop-blur-md">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <CardContent className="p-8 relative z-10">
+                  <div className="flex items-center gap-4 mb-6">
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: 360 }}
+                      transition={{ duration: 0.5 }}
+                      className="p-3 rounded-2xl bg-primary/10 text-primary"
+                    >
+                      <BookOpen className="h-8 w-8" />
+                    </motion.div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white group-hover:text-primary transition-colors">B.Tech in Information Technology</h3>
+                      <p className="text-primary/80">Samrat Ashok Technological Institute</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                      <span className="text-gray-400">CGPA</span>
+                      <span className="text-white font-bold text-lg">7.97/10</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                      <span className="text-gray-400">Status</span>
+                      <span className="text-green-400 font-bold">Current</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              whileHover={{ scale: 1.02, y: -5 }}
-              className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 hover:border-purple-400/50 transition-all duration-300"
+              whileHover={{ y: -8 }}
+              className="relative group"
             >
-              <div className="flex items-center gap-4 mb-4">
-                <motion.div
-                  animate={{ rotate: [0, -360] }}
-                  transition={{ duration: 12, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-                >
-                  <Award className="h-8 w-8 text-purple-400" />
-                </motion.div>
-                <div>
-                  <h3 className="text-xl font-bold text-white">Higher Secondary Education</h3>
-                  <p className="text-purple-400">Govt. School of Excellence, Chhindwara</p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Percentage</span>
-                  <span className="text-white font-semibold">83%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Status</span>
-                  <span className="text-gray-400 font-semibold">Completed</span>
-                </div>
-              </div>
+              <Card className="animated-border-card relative h-full w-full overflow-hidden bg-white/[0.03] border-white/10 group-hover:border-primary/40 transition-all duration-500 backdrop-blur-md">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <CardContent className="p-8 relative z-10">
+                  <div className="flex items-center gap-4 mb-6">
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: -360 }}
+                      transition={{ duration: 0.5 }}
+                      className="p-3 rounded-2xl bg-primary/10 text-primary"
+                    >
+                      <Award className="h-8 w-8" />
+                    </motion.div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white group-hover:text-primary transition-colors">Higher Secondary Education</h3>
+                      <p className="text-primary">Govt. School of Excellence</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                      <span className="text-gray-400">Percentage</span>
+                      <span className="text-white font-bold text-lg">83%</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                      <span className="text-gray-400">Status</span>
+                      <span className="text-gray-400 font-bold">Completed</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </motion.div>
           </div>
         </motion.div>
 
-        {/* Call to Action */}
+        {/* Call to Action - Contact Button */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
-          className="text-center"
+          className="flex justify-center items-center min-h-[300px]"
         >
-          <motion.h2
-            className="text-4xl font-bold mb-8 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent"
-            animate={{
-              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-            }}
-            transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY }}
-            style={{ backgroundSize: "200% 200%" }}
-          >
-            Let's Build Something Amazing Together!
-          </motion.h2>
-          <motion.p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
-            I'm always excited to work on new projects and collaborate with fellow developers. Let's connect and create
-            something extraordinary!
-          </motion.p>
           <motion.button
-          onClick={()=>setIsContactOpen(!isContactOpen)}
-            whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(6, 182, 212, 0.5)" }}
+            onClick={() => setIsContactOpen(true)}
+            whileHover={{ 
+              scale: 1.08, 
+              boxShadow: "0 0 40px rgba(255, 0, 102, 0.6), 0 0 20px rgba(255, 0, 102, 0.4)",
+              transition: { duration: 0.3 }
+            }}
             whileTap={{ scale: 0.95 }}
-            className="px-8 py-4 bg-gradient-to-r from-cyan-400 to-purple-500 text-black font-bold rounded-full hover:from-cyan-300 hover:to-purple-400 transition-all duration-300"
+            className="relative px-12 py-5 bg-primary text-primary-foreground font-bold text-lg rounded-full hover:bg-primary/90 transition-all duration-300 shadow-[0_10px_40px_rgba(255,0,102,0.5)] hover:shadow-[0_15px_50px_rgba(255,0,102,0.7)]"
           >
-            <Mail className="inline mr-2 h-5 w-5" />
-            Get In Touch
+            {/* Animated background gradient effect */}
+            <motion.div
+              className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-pink-500 opacity-0 blur-lg -z-10"
+              animate={{
+                opacity: [0.3, 0.6, 0.3],
+                scale: [1, 1.05, 1],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Number.POSITIVE_INFINITY,
+                ease: "easeInOut",
+              }}
+            />
+            
+            <div className="flex items-center gap-3">
+              <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+              >
+                <Mail className="h-6 w-6" />
+              </motion.div>
+              <span>Contact Us</span>
+            </div>
           </motion.button>
         </motion.div>
       </div>
-      {
-        isContactOpen && <Contact/>
-      }
+      <ContactDialog open={isContactOpen} onOpenChange={setIsContactOpen} />
+
+      <style>{`
+        @property --angle {
+          syntax: '<angle>';
+          initial-value: 0deg;
+          inherits: false;
+        }
+
+        @keyframes rotate-angle {
+          from { --angle: 0deg; }
+          to { --angle: 360deg; }
+        }
+
+        .animated-border-card:hover {
+          border-color: transparent !important;
+        }
+
+        .animated-border-card:hover::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          padding: 2px;
+          border-radius: inherit;
+          background: conic-gradient(
+            from var(--angle),
+            transparent 70%,
+            hsl(var(--primary)) 90%,
+            hsl(var(--primary)) 100%
+          );
+          -webkit-mask: 
+            linear-gradient(#fff 0 0) content-box, 
+            linear-gradient(#fff 0 0);
+          mask: 
+            linear-gradient(#fff 0 0) content-box, 
+            linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          pointer-events: none;
+          z-index: 50;
+          animation: rotate-angle 3s linear infinite;
+          filter: drop-shadow(0 0 6px hsl(var(--primary) / 0.8));
+        }
+      `}</style>
     </div>
   )
 }
