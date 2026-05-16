@@ -92,7 +92,7 @@ const SkillCard = ({
           </h3>
           
           <div className="space-y-3">
-            {skills.map((skill, index) => (
+            {skills.map((skill) => (
               <div key={skill} className="flex items-center gap-2">
                 <div
                   className="w-1.5 h-1.5 rounded-full"
@@ -541,6 +541,18 @@ export default function AdvancedAboutMe() {
           </motion.h2>
 
           <div className="max-w-4xl mx-auto">
+            <TimelineItem
+              title="SDE Intern"
+              company="BITCS"
+              period="Current"
+              description={[
+                "Currently interning as an SDE at BITCS and contributing to production-facing backend and product work.",
+                "Working with APIs, database-driven features, and clean implementation practices in a collaborative team environment.",
+                "Strengthening system design, debugging, and delivery skills through hands-on engineering work.",
+              ]}
+              current
+              delay={0}
+            />
             <TimelineItem
               title="Founder & Full Stack Developer"
               company="CrushSphere"

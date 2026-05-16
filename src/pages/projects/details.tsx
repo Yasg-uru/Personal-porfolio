@@ -1,349 +1,32 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
-import { useAppDispatch, useAppSelector } from "@/state/hook";
-import {
-  addComment,
-  addReplyOnComment,
-  dislike,
-  getprojectDetailsById,
-  likeOnComment,
-  likeOnReply,
-} from "@/state/slices/projectSlice/slice";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-
-import { Badge } from "@/components/ui/badge";
-
 import { motion } from "framer-motion";
-import {
-  Github,
-  ExternalLink,
-  Calendar,
-  Users,
-  Clock,
-  Target,
-  Zap,
-  Video,
-  ChevronDown,
-  Home,
-  Info,
-  Image,
-  MessageCircle,
-} from "lucide-react";
+import { Calendar, Users, Clock, Target, Zap, Video, ChevronDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Comment } from "@/state/slices/projectSlice/details";
-import { socket } from "@/App";
-import CommentComponent from "./comment";
-import { useAuthContext } from "@/context/authContext";
 import ProjectGallerySwiper from "./project-gallery-swiper";
-import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
+import ProjectHeader from "@/features/project-details/components/ProjectHeader";
+import SectionNav from "@/features/project-details/components/SectionNav";
+import CommentPanel from "@/features/project-details/components/CommentPanel";
+// social icons moved into SectionNav component
+import { useProjectDetailsPage } from "@/features/project-details/hooks/useProjectDetailsPage";
 
 const ProjectDetailsPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const dispatch = useAppDispatch();
-  const { toast } = useToast();
-  const [newComment, setNewComment] = useState("");
-  const [activeSection, setActiveSection] = useState("overview");
-  const { isAuthenticated } = useAuthContext();
-  const { projectDetails, isLoading } = useAppSelector(
-    (state) => state.project
-  );
-  const navigate = useNavigate();
-
-  const [comments, setComments] = useState<Comment[]>([]);
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-    setActiveSection(sectionId);
-  };
-  useEffect(() => {
-    if (id) {
-      dispatch(getprojectDetailsById(id))
-        .unwrap()
-        .then(() => {
-          toast({
-            title: "Project details fetched successfully",
-          });
-        })
-        .catch((error) => {
-          toast({
-            title: error,
-            variant: "destructive",
-          });
-        });
-    }
-  }, [id, dispatch, toast]);
-
-  useEffect(() => {
-    const handleNewComment = ({
-      projectId,
-      comment,
-    }: {
-      projectId: string;
-      comment: Comment;
-    }) => {
-      if (projectId === id) {
-        setComments((prevComments) => [...prevComments, comment]);
-      }
-    };
-
-    const handleNewReply = ({
-      commentId,
-      projectId,
-      reply,
-    }: {
-      commentId: string;
-      projectId: string;
-      reply: Comment;
-    }) => {
-      if (projectId === id) {
-        setComments((prevComments) =>
-          prevComments.map((comment) =>
-            comment._id === commentId
-              ? { ...comment, replies: [...comment.replies, reply] }
-              : comment
-          )
-        );
-      }
-    };
-
-    const handleReplyLikeUpdate = ({
-      projectId,
-      commentId,
-      replyId,
-      likes,
-    }: {
-      projectId: string;
-      commentId: string;
-      replyId: string;
-      likes: any[];
-    }) => {
-      if (projectId === id) {
-        setComments((prevComments) =>
-          prevComments.map((comment) =>
-            comment._id === commentId
-              ? {
-                  ...comment,
-                  replies: comment.replies.map((reply) =>
-                    reply._id === replyId ? { ...reply, likes } : reply
-                  ),
-                }
-              : comment
-          )
-        );
-      }
-    };
-
-    const handleCommentLikeUpdate = ({
-      projectId,
-      commentId,
-      likes,
-    }: {
-      projectId: string;
-      commentId: string;
-      likes: any[];
-    }) => {
-      if (projectId === id) {
-        setComments((prevComments) =>
-          prevComments.map((comment) =>
-            comment._id === commentId ? { ...comment, likes } : comment
-          )
-        );
-        console.log("this is comments :", comments);
-      }
-    };
-
-    const handleDislikeUpdate = ({
-      projectId,
-      commentId,
-      dislikes,
-    }: {
-      projectId: string;
-      commentId: string;
-      dislikes: any[];
-    }) => {
-      if (projectId === id) {
-        setComments((prevComments) =>
-          prevComments.map((comment) =>
-            comment._id === commentId ? { ...comment, dislikes } : comment
-          )
-        );
-      }
-    };
-
-    socket.on("newComment", handleNewComment);
-    socket.on("new_reply", handleNewReply);
-    socket.on("reply-like-update", handleReplyLikeUpdate);
-    socket.on("commentLike-update", handleCommentLikeUpdate);
-    socket.on("dislike-update", handleDislikeUpdate);
-
-    return () => {
-      socket.off("newComment", handleNewComment);
-      socket.off("new_reply", handleNewReply);
-      socket.off("reply-like-update", handleReplyLikeUpdate);
-      socket.off("commentLike-update", handleCommentLikeUpdate);
-      socket.off("dislike-update", handleDislikeUpdate);
-    };
-  }, [id]);
-
-  useEffect(() => {
-    if (projectDetails && projectDetails.comments.length > 0) {
-      setComments(projectDetails.comments);
-      console.log("this is intial comments :", projectDetails.comments);
-    }
-  }, [projectDetails]);
-
-  const handleComment = useCallback(() => {
-    if (!isAuthenticated) {
-      toast({
-        title: "please login to continue",
-      });
-      navigate("/login");
-    }
-    if (!newComment.trim()) {
-      toast({
-        title:
-          "You can't send an empty comment. Please write text and then send it.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (id) {
-      dispatch(addComment({ comment: newComment, projectId: id }))
-        .unwrap()
-        // .then(() => {
-        //   toast({
-        //     title: "Comment added successfully",
-        //   });
-        //   setNewComment("");
-        // })
-        .catch((error) => {
-          toast({
-            title: error,
-            variant: "destructive",
-          });
-        });
-    }
-  }, [newComment, id, dispatch, toast]);
-
-  const handleReply = useCallback(
-    (commentId: string, replyText: string) => {
-      if (!isAuthenticated) {
-        toast({
-          title: "please login to continue",
-        });
-        navigate("/login");
-      }
-      if (id) {
-        dispatch(addReplyOnComment({ commentId, replyText, projectId: id }))
-          .unwrap()
-          // .then(() => {
-          //   toast({
-          //     title: "Replied on comment successfully",
-          //   });
-          // })
-          .catch((error) => {
-            toast({
-              title: error,
-              variant: "destructive",
-            });
-          });
-      }
-    },
-    [id, dispatch, toast]
-  );
-
-  const handleReplyLikeUnlike = useCallback(
-    (replyId: string, commentId: string) => {
-      if (!isAuthenticated) {
-        toast({
-          title: "please login to continue",
-        });
-        navigate("/login");
-      }
-      if (id) {
-        dispatch(likeOnReply({ commentId, replyId, projectId: id }))
-          .unwrap()
-          // .then(() => {
-          //   toast({ title: "Liked reply successfully" });
-          // })
-          .catch((error) => {
-            toast({
-              title: error,
-              variant: "destructive",
-            });
-          });
-      }
-    },
-    [id, dispatch, toast]
-  );
-
-  const handleLike = useCallback(
-    (commentId: string) => {
-      if (!isAuthenticated) {
-        toast({
-          title: "please login to continue",
-        });
-        navigate("/login");
-      }
-      if (id) {
-        dispatch(likeOnComment({ projectId: id, commentId }))
-          .unwrap()
-          // .then(() => {
-          //   toast({
-          //     title: "Comment liked successfully",
-          //   });
-          // })
-          .catch((error) => {
-            toast({
-              title: error,
-              variant: "destructive",
-            });
-          });
-      }
-    },
-    [id, dispatch, toast]
-  );
-
-  const handleDislike = useCallback(
-    (commentId: string) => {
-      if (!isAuthenticated) {
-        toast({
-          title: "please login to continue",
-        });
-        navigate("/login");
-      }
-      if (id) {
-        dispatch(dislike({ commentId, projectId: id }))
-          .unwrap()
-          // .then(() => {
-          //   toast({
-          //     title: "Disliked successfully",
-          //   });
-          // })
-          .catch((error) => {
-            toast({
-              title: error,
-              variant: "destructive",
-            });
-          });
-      }
-    },
-    [id, dispatch, toast]
-  );
-
-  const handleEdit = useCallback((commentId: string, newText: string) => {
-    // Implement edit functionality
-    console.log("Edit comment", commentId, newText);
-  }, []);
-
-  const handleDelete = useCallback((commentId: string) => {
-    // Implement delete functionality
-    console.log("Delete comment", commentId);
-  }, []);
+  const {
+    projectDetails,
+    isLoading,
+    comments,
+    newComment,
+    setNewComment,
+    activeSection,
+    scrollToSection,
+    handleComment,
+    handleReply,
+    handleReplyLikeUnlike,
+    handleLike,
+    handleDislike,
+    handleEdit,
+    handleDelete,
+  } = useProjectDetailsPage();
 
   if (isLoading) {
     return (
@@ -364,121 +47,11 @@ const ProjectDetailsPage: React.FC = () => {
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-black to-black" />
       <div className="pointer-events-none absolute -top-32 -right-24 h-80 w-80 rounded-full bg-primary/20 blur-[130px]" />
       <div className="pointer-events-none absolute top-[35%] -left-20 h-64 w-64 rounded-full bg-primary/15 blur-[120px]" />
-      {/* Fixed control buttons */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="fixed left-6 bottom-20 flex flex-col items-center gap-6 z-50"
-      >
-        <a
-          href="https://github.com/Yasg-uru"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-white/60 hover:text-primary hover:-translate-y-1 transition-all"
-        >
-          <FaGithub size={20} />
-        </a>
-        <a
-          href="https://www.linkedin.com/in/yash-choudhary-28766a259"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-white/60 hover:text-primary hover:-translate-y-1 transition-all"
-        >
-          <FaLinkedin size={20} />
-        </a>
-        <a
-          href="https://x.com/yashc442"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-white/60 hover:text-primary hover:-translate-y-1 transition-all"
-        >
-          <FaTwitter size={20} />
-        </a>
-        <div className="h-24 w-[1px] bg-white/15" />
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="fixed right-6 top-1/2 transform -translate-y-1/2 flex flex-col items-center gap-6 z-50"
-      >
-        {[
-          { name: "overview", icon: <Home size={20} /> },
-          { name: "details", icon: <Info size={20} /> },
-          { name: "gallery", icon: <Image size={20} /> },
-          { name: "videos", icon: <Video size={20} /> },
-          { name: "comments", icon: <MessageCircle size={20} /> },
-        ].map((section) => (
-          <Button
-            key={section.name}
-            variant={null}
-            className={`p-2 text-sm flex items-center gap-2 ${
-              activeSection === section.name
-                ? "text-primary hover:text-primary"
-                : "text-white/60 hover:text-primary"
-            } hover:-translate-y-1 transition-all`}
-            onClick={() => scrollToSection(section.name)}
-          >
-            {section.icon}
-            {section.name.charAt(0).toUpperCase() + section.name.slice(1)}
-          </Button>
-        ))}
-
-        <div className="h-24 w-[1px] bg-white/15" />
-      </motion.div>
+      <SectionNav activeSection={activeSection} onNavigate={scrollToSection} />
       {/* Main content */}
       <div className="relative z-10 pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4">
-          {/* Project header with typewriter animation */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-12 rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.45)]"
-          >
-            <h1 className="text-4xl font-bold mb-4 text-white">{projectDetails.title}</h1>
-            <p className="text-xl text-white/70 mb-6">
-              {projectDetails.description}
-            </p>
-            <div className="flex flex-wrap gap-2 mb-6">
-              {projectDetails.technologies.map((tech, index) => (
-                <Badge
-                  key={index}
-                  variant="secondary"
-                  className="bg-primary/10 text-primary"
-                >
-                  {tech}
-                </Badge>
-              ))}
-            </div>
-            <div className="flex gap-4">
-              <Button className="flex items-center gap-2" asChild>
-                <a
-                  href={projectDetails.liveDemo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  Live Demo
-                </a>
-              </Button>
-              <Button
-                variant={null}
-                className="flex items-center gap-2"
-                asChild
-              >
-                <a
-                  href={projectDetails.repository}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Github className="h-4 w-4" />
-                  Repository
-                </a>
-              </Button>
-            </div>
-          </motion.div>
+          <ProjectHeader project={projectDetails} />
 
           {/* Sections (Overview, Details, Gallery, etc.) */}
           <motion.section
@@ -611,50 +184,18 @@ const ProjectDetailsPage: React.FC = () => {
             </div>
           </motion.section>
 
-          {/* Comments section */}
-          <motion.section
-            id="comments"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1 }}
-            className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl"
-          >
-            <h2 className="text-primary text-2xl font-bold tracking-widest mb-4">
-              Comments ({comments.length})
-            </h2>
-            <div className="rounded-xl p-8 mb-12 shadow-lg border border-white/10 bg-black/25">
-              {/* Comment Input Area */}
-              <Textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Write a comment..."
-                className="min-h-[120px] bg-black/30 text-white border-2 border-white/10 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300 ease-in-out"
-              />
-              <div className="flex justify-end mt-4">
-                <Button
-                  onClick={handleComment}
-                  className="bg-primary text-primary-foreground px-6 py-3 rounded-full hover:bg-primary/90 transform transition-all duration-300 ease-in-out hover:scale-105"
-                >
-                  Post Comment
-                </Button>
-              </div>
-            </div>
-
-            {/* Comments List */}
-            <div className="space-y-8">
-              {comments.map((comment) => (
-                <CommentComponent
-                  comment={comment}
-                  onLike={handleLike}
-                  onDislike={handleDislike}
-                  onReply={handleReply}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onReplyLike={handleReplyLikeUnlike}
-                />
-              ))}
-            </div>
-          </motion.section>
+          <CommentPanel
+            comments={comments}
+            newComment={newComment}
+            setNewComment={setNewComment}
+            onPostComment={handleComment}
+            onLike={handleLike}
+            onDislike={handleDislike}
+            onReply={handleReply}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onReplyLike={handleReplyLikeUnlike}
+          />
         </div>
       </div>
 

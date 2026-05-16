@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import { useAuthContext } from "@/context/authContext"
 import { useTheme } from "@/components/theme-provider"
+import YashChoudharyResume from "../../assets/YashChoudharyResume.pdf"
 // import { useAppDispatch } from "@/state/hook"
 
 
@@ -164,7 +165,7 @@ const AdvancedNavbar = () => {
 
               {/* Resume Button */}
               <motion.a
-                href="/resume.pdf"
+                href={YashChoudharyResume}
                 download
                 className="px-4 py-2 text-sm border border-primary text-primary rounded-md"
                 whileHover={{ scale: 1.03 }}
@@ -298,7 +299,7 @@ const AdvancedNavbar = () => {
 
                   <div className="flex flex-col space-y-2">
                     <motion.a
-                      href="/resume.pdf"
+                      href={YashChoudharyResume}
                       download
                       className="block text-center px-4 py-2 text-sm border border-primary text-primary rounded-md"
                       whileTap={{ scale: 0.97 }}
