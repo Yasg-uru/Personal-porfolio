@@ -52,32 +52,6 @@ const ProjectDetailsPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [comments, setComments] = useState<Comment[]>([]);
-
-  useEffect(() => {
-    const sections = ["overview", "details", "gallery", "videos", "comments"];
-    const observerOptions = {
-      root: null,
-      rootMargin: "-20% 0px -70% 0px",
-      threshold: 0,
-    };
-
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setActiveSection(entry.target.id);
-        }
-      });
-    };
-
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
-    sections.forEach((id) => {
-      const element = document.getElementById(id);
-      if (element) observer.observe(element);
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -392,50 +366,36 @@ const ProjectDetailsPage: React.FC = () => {
       <div className="pointer-events-none absolute top-[35%] -left-20 h-64 w-64 rounded-full bg-primary/15 blur-[120px]" />
       {/* Fixed control buttons */}
       <motion.div
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.8, duration: 0.8 }}
-        className="fixed left-8 top-1/2 transform -translate-y-1/2 flex flex-col items-center gap-6 z-50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8 }}
+        className="fixed left-6 bottom-20 flex flex-col items-center gap-6 z-50"
       >
-        <motion.a
+        <a
           href="https://github.com/Yasg-uru"
           target="_blank"
           rel="noopener noreferrer"
-          whileHover={{ scale: 1.1, color: "hsl(var(--primary))" }}
-          whileTap={{ scale: 0.9 }}
-          className="text-white/60 hover:text-primary transition-all duration-300 p-3 rounded-full border border-white/20 hover:border-primary"
+          className="text-white/60 hover:text-primary hover:-translate-y-1 transition-all"
         >
           <FaGithub size={20} />
-        </motion.a>
-
-        <motion.a
+        </a>
+        <a
           href="https://www.linkedin.com/in/yash-choudhary-28766a259"
           target="_blank"
           rel="noopener noreferrer"
-          whileHover={{ scale: 1.1, color: "hsl(var(--primary))" }}
-          whileTap={{ scale: 0.9 }}
-          className="text-white/60 hover:text-primary transition-all duration-300 p-3 rounded-full border border-white/20 hover:border-primary"
+          className="text-white/60 hover:text-primary hover:-translate-y-1 transition-all"
         >
           <FaLinkedin size={20} />
-        </motion.a>
-
-        <motion.a
+        </a>
+        <a
           href="https://x.com/yashc442"
           target="_blank"
           rel="noopener noreferrer"
-          whileHover={{ scale: 1.1, color: "hsl(var(--primary))" }}
-          whileTap={{ scale: 0.9 }}
-          className="text-white/60 hover:text-primary transition-all duration-300 p-3 rounded-full border border-white/20 hover:border-primary"
+          className="text-white/60 hover:text-primary hover:-translate-y-1 transition-all"
         >
           <FaTwitter size={20} />
-        </motion.a>
-
-        <motion.div
-          initial={{ height: 0 }}
-          animate={{ height: 80 }}
-          transition={{ delay: 1.2, duration: 1 }}
-          className="w-[1px] bg-gradient-to-b from-primary to-transparent"
-        />
+        </a>
+        <div className="h-24 w-[1px] bg-white/15" />
       </motion.div>
       <motion.div
         initial={{ opacity: 0 }}
@@ -465,12 +425,7 @@ const ProjectDetailsPage: React.FC = () => {
           </Button>
         ))}
 
-        <motion.div
-          initial={{ height: 0 }}
-          animate={{ height: 80 }}
-          transition={{ delay: 1.2, duration: 1 }}
-          className="w-[1px] bg-gradient-to-b from-primary to-transparent"
-        />
+        <div className="h-24 w-[1px] bg-white/15" />
       </motion.div>
       {/* Main content */}
       <div className="relative z-10 pt-20 pb-12">
