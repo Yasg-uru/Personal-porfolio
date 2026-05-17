@@ -2,6 +2,13 @@ export const API_ROUTES = {
   auth: {
     register: "/user/register",
     login: "/user/login",
+    verifyEmail: "/user/verify-email",
+    resendVerification: "/user/resend-verification",
+    forgotPassword: "/user/forgot-password",
+    resetPassword: (token: string) => `/user/reset-password/${token}`,
+    refreshToken: "/user/refresh-token",
+    me: "/user/verify-user",
+    logout: "/user/logout",
     sendMessage: "/notification/send-message",
   },
   projects: {

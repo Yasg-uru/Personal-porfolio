@@ -1,78 +1,34 @@
-import axiosInstance from "@/helper/axiosInstanc";
-import { useToast } from "@/hooks/use-toast";
+import React, { useContext } from "react";
+import type { AuthUser } from "@/features/auth/types"
+import { useAuthSession } from "@/hooks/queries/useAuth"
+import { useLogout } from "@/hooks/mutations/useAuthMutations"
 
-import React, { useContext, useEffect } from "react";
-interface user {
-  email: string;
-  username: string;
-  profileUrl: string;
-  _id:string ;
-
-}
 interface authContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
-  user: user | null;
-  logout: () => void;
+  user: AuthUser | null;
+  logout: () => Promise<void>;
 }
 interface providerprops {
   children: React.ReactNode;
 }
 const authContext = React.createContext<authContextType | undefined>(undefined);
 export const AuthProvider: React.FC<providerprops> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(true);
-  const [authUser, setAuthUser] = React.useState<user | null>(null);
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const { toast } = useToast();
+  const authSessionQuery = useAuthSession();
+  const logoutMutation = useLogout();
 
-  const getUserDetails = async () => {
-    try {
-      setIsLoading(true);
-
-      const response = await axiosInstance.get(`/user/verify-user`, {
-        withCredentials: true,
-      });
-
-      const { user } = response.data;
-      toast({
-        title: "user verified successfully ",
-      });
-      setAuthUser(user);
-      setIsAuthenticated(true);
-    } catch (err) {
-      toast({
-        title: "failed to verify user please login to continue",
-      });
-      console.error("Error fetching user details:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
   const logout = async () => {
-    try {
-      setIsLoading(true);
-
-      await axiosInstance.post(
-        "/user/logout",
-        {},
-        {
-          withCredentials: true,
-        }
-      );
-      setAuthUser(null);
-      setIsAuthenticated(false);
-    } catch (error) {
-      setIsLoading(false);
-    } finally {
-      setIsLoading(false);
-    }
+    await logoutMutation.mutateAsync();
   };
-  useEffect(() => {
-    getUserDetails();
-  }, []);
+
   return (
     <authContext.Provider
-      value={{ isAuthenticated, isLoading, user: authUser, logout }}
+      value={{
+        isAuthenticated: !!authSessionQuery.data,
+        isLoading: authSessionQuery.isLoading || authSessionQuery.isFetching || logoutMutation.isPending,
+        user: authSessionQuery.data ?? null,
+        logout,
+      }}
     >
       {children}
     </authContext.Provider>
