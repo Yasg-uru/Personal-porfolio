@@ -1,36 +1,28 @@
-import React, { useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { useAppDispatch, useAppSelector } from "@/state/hook";
-import { getProjects } from "@/state/slices/projectSlice/slice";
-import ProjectsCarousel from "@/components/ProjectsCarousel";
+import React, { useEffect } from "react"
+import { useToast } from "@/hooks/use-toast"
+import { useProjects } from "@/hooks/queries/useProjects"
+import ProjectsCarousel from "@/components/ProjectsCarousel"
 
 const Projects: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { projects } = useAppSelector((state) => state.project);
-  const { toast } = useToast();
+  const { data: projects = [], error } = useProjects()
+  const { toast } = useToast()
 
   useEffect(() => {
-    dispatch(getProjects())
-      .unwrap()
-      .then(() => {
-        toast({
-          title: "Projects fetched successfully",
-        });
+    if (error) {
+      toast({
+        title: "Failed to fetch projects",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
       })
-      .catch((error) => {
-        toast({
-          title: error,
-          variant: "destructive",
-        });
-      });
-  }, [dispatch, toast]);
+    }
+  }, [error, toast])
 
   const featuredProjects = projects.filter(
-    (project) => project.category === "featured"
-  );
+    (project: any) => project.category === "featured"
+  )
   const practiceProjects = projects.filter(
-    (project) => project.category === "practice"
-  );
+    (project: any) => project.category === "practice"
+  )
 
   return (
     <section

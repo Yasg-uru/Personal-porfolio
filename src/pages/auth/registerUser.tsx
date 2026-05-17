@@ -1,7 +1,7 @@
-import React from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
+import React from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -10,8 +10,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
 import {
   Card,
   CardContent,
@@ -19,14 +19,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import * as z from "zod";
-import { Icons } from "@/components/ui/icons";
-import { Link, useNavigate } from "react-router-dom";
-import { User } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@/state/hook";
-import { createAccount } from "@/state/slices/authslice/authSlice";
+} from "@/components/ui/card"
+import { useToast } from "@/hooks/use-toast"
+import * as z from "zod"
+import { Icons } from "@/components/ui/icons"
+import { Link } from "react-router-dom"
+import { User } from "lucide-react"
+import { useRegister } from "@/hooks/mutations/useAuthMutations"
 
 export const registerSchema = z.object({
   email: z.string().email({
@@ -35,19 +34,15 @@ export const registerSchema = z.object({
   password: z.string().min(8, {
     message: "Password must be at least 8 characters long.",
   }),
-  profileUrl: z.any().optional(), // Allow files
-});
+  profileUrl: z.any().optional(),
+})
 
-export type RegisterFormValues = z.infer<typeof registerSchema>;
+export type RegisterFormValues = z.infer<typeof registerSchema>
 
 const RegisterUser: React.FC = () => {
-  const navigate = useNavigate();
-
-  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
-  const { toast } = useToast();
-  const dispatch = useAppDispatch();
-
-  const { isLoading } = useAppSelector((state) => state.auth);
+  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
+  const { toast } = useToast()
+  const registerMutation = useRegister()
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -56,34 +51,32 @@ const RegisterUser: React.FC = () => {
       password: "",
       profileUrl: null,
     },
-  });
+  })
 
   const onSubmit = async (data: RegisterFormValues) => {
-    // Create FormData
-    const formData = new FormData();
-    formData.append("email", data.email);
-    formData.append("password", data.password);
+    const formData = new FormData()
+    formData.append("email", data.email)
+    formData.append("password", data.password)
     if (data.profileUrl) {
-      formData.append("profileUrl", data.profileUrl[0]); // File input contains an array
+      formData.append("profileUrl", data.profileUrl[0])
     }
-    dispatch(createAccount(formData))
-      .unwrap()
-      .then(() => {
+    registerMutation.mutate(formData, {
+      onSuccess: () => {
         toast({
-            className:'bg-background text-foreground border border-border',
+          className: "bg-background text-foreground border border-border",
           title: "Registration Successful",
           description: "You've been automatically logged in. Welcome!",
-        });
-      })
-      .catch((error) => {
+        })
+      },
+      onError: (error) => {
         toast({
-          title: error,
+          title: "Registration Failed",
+          description: error instanceof Error ? error.message : "Unknown error",
           variant: "destructive",
-        });
-      });
-
-    navigate("/");
-  };
+        })
+      },
+    })
+  }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -193,9 +186,9 @@ const RegisterUser: React.FC = () => {
               <Button
                 type="submit"
                 className="w-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 disabled:opacity-50"
-                disabled={isLoading}
+                disabled={registerMutation.isPending}
               >
-                {isLoading && (
+                {registerMutation.isPending && (
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                 )}
                 Register

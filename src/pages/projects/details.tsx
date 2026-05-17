@@ -67,7 +67,7 @@ const ProjectDetailsPage: React.FC = () => {
             </p>
             <h3 className="text-2xl font-semibold mb-4 text-white">Key Features</h3>
             <ul className="list-disc list-inside text-white/70 space-y-2">
-              {projectDetails.features.map((feature, index) => (
+              {projectDetails.features.map((feature: string, index: number) => (
                 <li key={index}>{feature}</li>
               ))}
             </ul>
@@ -146,7 +146,7 @@ const ProjectDetailsPage: React.FC = () => {
               Project Videos
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {projectDetails.videos.map((video) => (
+              {projectDetails.videos.map((video: any) => (
                 <motion.div
                   key={video._id}
                   whileHover={{ scale: 1.05 }}

@@ -1,30 +1,28 @@
-import React from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
+import React from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
-  // FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import * as z from "zod";
-import { Icons } from "@/components/ui/icons";
-import { Link, useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "@/state/hook";
-import { login } from "@/state/slices/authslice/authSlice";
+} from "@/components/ui/card"
+import { useToast } from "@/hooks/use-toast"
+import * as z from "zod"
+import { Icons } from "@/components/ui/icons"
+import { Link, useNavigate } from "react-router-dom"
+import { useLogin } from "@/hooks/mutations/useAuthMutations"
 
 export const loginSchema = z.object({
   email: z.string().email({
@@ -33,16 +31,14 @@ export const loginSchema = z.object({
   password: z.string().min(8, {
     message: "Password must be at least 8 characters long.",
   }),
-});
+})
 
-export type LoginFormValues = z.infer<typeof loginSchema>;
+export type LoginFormValues = z.infer<typeof loginSchema>
 
 const LoginUser: React.FC = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const dispatch = useAppDispatch();
-
-  const { isLoading } = useAppSelector((state) => state.auth);
+  const navigate = useNavigate()
+  const { toast } = useToast()
+  const loginMutation = useLogin()
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -50,26 +46,27 @@ const LoginUser: React.FC = () => {
       email: "",
       password: "",
     },
-  });
+  })
 
   const onSubmit = async (data: LoginFormValues) => {
-    dispatch(login(data))
-      .unwrap()
-      .then(() => {
+    loginMutation.mutate(data, {
+      onSuccess: () => {
         toast({
           className: "bg-background text-foreground border border-border",
           title: "Login Successful",
           description: "Welcome back!",
-        });
-        navigate("/");
-      })
-      .catch((error) => {
+        })
+        navigate("/")
+      },
+      onError: (error) => {
         toast({
-          title: error,
+          title: "Login Failed",
+          description: error instanceof Error ? error.message : "Unknown error",
           variant: "destructive",
-        });
-      });
-  };
+        })
+      },
+    })
+  }
 
   return (
     <div className="bg-background min-h-screen flex justify-center items-center p-8 text-foreground transition-colors duration-300">
@@ -118,9 +115,9 @@ const LoginUser: React.FC = () => {
               <Button
                 type="submit"
                 className="w-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 disabled:opacity-50"
-                disabled={isLoading}
+                disabled={loginMutation.isPending}
               >
-                {isLoading && (
+                {loginMutation.isPending && (
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                 )}
                 Log In

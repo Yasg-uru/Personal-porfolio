@@ -3,7 +3,7 @@ import { motion } from "framer-motion"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import CommentComponent from "@/pages/projects/comment"
-import type { Comment } from "@/state/slices/projectSlice/details"
+import type { Comment } from "../types"
 
 type Props = {
   comments: Comment[]

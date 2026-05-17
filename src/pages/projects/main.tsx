@@ -1,65 +1,48 @@
-import { useToast } from "@/hooks/use-toast";
-import { useAppDispatch, useAppSelector } from "@/state/hook";
-import { getProjects, likeProject } from "@/state/slices/projectSlice/slice";
-import { useEffect, useState } from "react";
-
-import { useNavigate } from "react-router-dom";
-
-import type React from "react";
-
-import ProjectCard from "./projectCard";
-import ProjectsCarousel from "@/components/ProjectsCarousel";
-
-import { Loader } from "lucide-react";
+import { useToast } from "@/hooks/use-toast"
+import { useProjects } from "@/hooks/queries/useProjects"
+import { useLikeProject } from "@/hooks/mutations/useProjectMutations"
+import { useEffect, useState } from "react"
+import type React from "react"
+import ProjectsCarousel from "@/components/ProjectsCarousel"
+import { Loader } from "lucide-react"
 
 type MousePosition = {
-  x: number;
-  y: number;
-  active: boolean;
-};
+  x: number
+  y: number
+  active: boolean
+}
 
 const Projects: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { projects, isLoading } = useAppSelector((state) => state.project);
-  const { toast } = useToast();
-  const navigate = useNavigate();
+  const { data: projects = [], isLoading, error } = useProjects()
+  const likeProjectMutation = useLikeProject()
+  const { toast } = useToast()
   const [mousePosition, setMousePosition] = useState<MousePosition>({
     x: 0,
     y: 0,
     active: false,
-  });
+  })
 
   useEffect(() => {
-    dispatch(getProjects())
-      .unwrap()
-      .then(() => {
-        toast({
-          title: "Projects fetched successfully",
-        });
+    if (error) {
+      toast({
+        title: "Failed to fetch projects",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
       })
-      .catch((error) => {
-        toast({
-          title: error,
-          variant: "destructive",
-        });
-      });
-  }, [dispatch, toast]);
-
-  const handleClick = (id: string) => {
-    navigate(`/details/${id}`);
-  };
+    }
+  }, [error, toast])
 
   const handleLike = (projectId: string) => {
-    dispatch(likeProject(projectId))
-      .unwrap()
-
-      .catch((error) => {
+    likeProjectMutation.mutate(projectId, {
+      onError: (error) => {
         toast({
-          title: error,
+          title: "Failed to like project",
+          description: error instanceof Error ? error.message : "Unknown error",
           variant: "destructive",
-        });
-      });
-  };
+        })
+      },
+    })
+  }
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
@@ -67,21 +50,21 @@ const Projects: React.FC = () => {
         x: event.clientX,
         y: event.clientY,
         active: true,
-      });
-    };
+      })
+    }
 
     const handleMouseLeave = () => {
-      setMousePosition((prev) => ({ ...prev, active: false }));
-    };
+      setMousePosition((prev) => ({ ...prev, active: false }))
+    }
 
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseleave", handleMouseLeave);
+    window.addEventListener("mousemove", handleMouseMove)
+    window.addEventListener("mouseleave", handleMouseLeave)
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  }, []);
+      window.removeEventListener("mousemove", handleMouseMove)
+      window.removeEventListener("mouseleave", handleMouseLeave)
+    }
+  }, [])
 
   if (isLoading) {
   return (

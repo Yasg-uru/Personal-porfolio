@@ -8,8 +8,7 @@ import { motion } from "framer-motion"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { useAppDispatch, useAppSelector } from "@/state/hook"
-import { sendMessage } from "@/state/slices/authslice/authSlice"
+import { useSendMessage } from "@/hooks/mutations/useAuthMutations"
 
 const contactFormSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
@@ -21,8 +20,7 @@ export type ContactFormInputs = z.infer<typeof contactFormSchema>
 
 const Contact: React.FC = () => {
   const { toast } = useToast()
-  const dispatch = useAppDispatch()
-  const { isLoading } = useAppSelector((state) => state.auth)
+  const sendMessageMutation = useSendMessage()
 
   const {
     control,
@@ -40,13 +38,20 @@ const Contact: React.FC = () => {
   }
 
   const onSubmit = async (data: ContactFormInputs) => {
-    dispatch(sendMessage(data))
-      .unwrap()
-      .then(() => toast({ title: "Message sent successfully" }))
-      .catch((error) => toast({ title: error, variant: "destructive" }))
-
-    reset()
-    setValues({ name: "", email: "", message: "" })
+    sendMessageMutation.mutate(data, {
+      onSuccess: () => {
+        toast({ title: "Message sent successfully" })
+        reset()
+        setValues({ name: "", email: "", message: "" })
+      },
+      onError: (error) => {
+        toast({
+          title: "Failed to send message",
+          description: error instanceof Error ? error.message : "Unknown error",
+          variant: "destructive",
+        })
+      },
+    })
   }
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -191,7 +196,7 @@ const Contact: React.FC = () => {
               whileTap={{ scale: 0.97 }}
               className="w-full bg-primary text-black font-semibold py-3 px-6 rounded-md transition-all shadow-md hover:bg-primary/90"
             >
-              {isLoading ? "Sending..." : "Send Message"}
+              {sendMessageMutation.isPending ? "Sending..." : "Send Message"}
             </motion.button>
           </form>
         </motion.div>

@@ -1,30 +1,38 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useToast } from "@/hooks/use-toast"
-import { useAppDispatch, useAppSelector } from "@/state/hook"
-import { fetchGitHubContributions } from "@/state/slices/projectSlice/slice"
-import type { ContributionDay } from "@/state/slices/projectSlice/github.type"
+import { useGitHubContributions } from "@/hooks/queries/useProjects"
+import type { ContributionDay } from "../types"
+import theme from "@/lib/theme"
 
 export const useGitHubStats = () => {
-  const dispatch = useAppDispatch()
   const { toast } = useToast()
-  const gitHubData = useAppSelector((state) => state.project.gitHubData)
+  const { data: gitHubData, isLoading, error } = useGitHubContributions("Yasg-uru")
   const [selectedDay, setSelectedDay] = useState<ContributionDay | null>(null)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString())
   const [hoveredSquare, setHoveredSquare] = useState<string | null>(null)
-  const [, setIsLoaded] = useState(false)
   const activityLogRef = useRef<HTMLDivElement | null>(null)
 
   const currentDate = new Date()
   const currentYear = currentDate.getFullYear()
   const currentMonth = currentDate.getMonth()
 
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "GitHub data fetch failed",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      })
+    }
+  }, [error, toast])
+
   const availableYears = useMemo(() => {
     const weeks = gitHubData?.user?.contributionsCollection?.contributionCalendar?.weeks
     if (!weeks) return [new Date().getFullYear().toString()]
 
     const years = new Set<string>()
-    weeks.forEach((week) => {
-      week.contributionDays.forEach((day) => {
+    weeks.forEach((week: any) => {
+      week.contributionDays.forEach((day: any) => {
         if (day.date) {
           years.add(new Date(day.date).getFullYear().toString())
         }
@@ -41,8 +49,8 @@ export const useGitHubStats = () => {
     const startDate = new Date(currentYear, currentMonth - 11, 1)
     const endDate = new Date(currentYear, currentMonth + 1, 0)
 
-    return weeks.filter((week) =>
-      week.contributionDays.some((day) => {
+    return weeks.filter((week: any) =>
+      week.contributionDays.some((day: any) => {
         const dayDate = new Date(day.date)
         return dayDate >= startDate && dayDate <= endDate
       })
@@ -56,8 +64,8 @@ export const useGitHubStats = () => {
     const startDate = new Date(`${selectedYear}-01-01`)
     const endDate = new Date(`${selectedYear}-12-31`)
 
-    return weeks.filter((week) =>
-      week.contributionDays.some((day) => {
+    return weeks.filter((week: any) =>
+      week.contributionDays.some((day: any) => {
         const dayDate = new Date(day.date)
         return dayDate >= startDate && dayDate <= endDate
       })
@@ -66,9 +74,9 @@ export const useGitHubStats = () => {
 
   const stats = useMemo(() => {
     const weeksToUse = selectedYear === currentYear.toString() ? filteredWeeks : yearlyWeeks
-    const allDays = weeksToUse.flatMap((week) => week.contributionDays)
-    const activeDays = allDays.filter((day) => day.contributionCount > 0)
-    const totalContributions = allDays.reduce((sum, day) => sum + day.contributionCount, 0)
+    const allDays = weeksToUse.flatMap((week: any) => week.contributionDays)
+    const activeDays = allDays.filter((day: any) => day.contributionCount > 0)
+    const totalContributions = allDays.reduce((sum: number, day: any) => sum + day.contributionCount, 0)
 
     let currentStreak = 0
     for (let index = allDays.length - 1; index >= 0; index--) {
@@ -78,7 +86,7 @@ export const useGitHubStats = () => {
 
     let longestStreak = 0
     let tempStreak = 0
-    allDays.forEach((day) => {
+    allDays.forEach((day: any) => {
       if (day.contributionCount > 0) {
         tempStreak++
         longestStreak = Math.max(longestStreak, tempStreak)
@@ -90,7 +98,7 @@ export const useGitHubStats = () => {
     const avgContributions = allDays.length ? totalContributions / allDays.length : 0
 
     const maxDay = allDays.reduce(
-      (max, day) => (day.contributionCount > max.contributionCount ? day : max),
+      (max: any, day: any) => (day.contributionCount > max.contributionCount ? day : max),
       { contributionCount: 0, date: "", color: "" }
     )
 
@@ -106,10 +114,10 @@ export const useGitHubStats = () => {
 
   const getContributionColor = (count: number) => {
     if (count === 0) return "#0f0f0f"
-    if (count <= 3) return "hsl(var(--primary) / 0.25)"
-    if (count <= 6) return "hsl(var(--primary) / 0.5)"
-    if (count <= 9) return "hsl(var(--primary) / 0.75)"
-    return "hsl(var(--primary))"
+    if (count <= 3) return theme.hsl(theme.primary, "0.25")
+    if (count <= 6) return theme.hsl(theme.primary, "0.5")
+    if (count <= 9) return theme.hsl(theme.primary, "0.75")
+    return theme.hsl(theme.primary, "1")
   }
 
   const getIntensityLevel = (count: number) => {
@@ -130,19 +138,6 @@ export const useGitHubStats = () => {
   }
 
   const weekdays = ["S", "M", "T", "W", "T", "F", "S"]
-
-  useEffect(() => {
-    dispatch(fetchGitHubContributions("Yasg-uru"))
-      .unwrap()
-      .then(() => setIsLoaded(true))
-      .catch((error) => {
-        toast({
-          title: "GitHub data fetch failed",
-          description: error.toString(),
-          variant: "destructive",
-        })
-      })
-  }, [dispatch, toast])
 
   useEffect(() => {
     if (!selectedDay) return
@@ -200,5 +195,6 @@ export const useGitHubStats = () => {
     containerVariants,
     itemVariants,
     currentYear,
+    isLoading,
   }
 }

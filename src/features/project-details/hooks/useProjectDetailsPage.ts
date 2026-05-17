@@ -1,26 +1,30 @@
 import { useCallback, useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
-import { useAppDispatch, useAppSelector } from "@/state/hook"
+import { useProjectDetails } from "@/hooks/queries/useProjects"
 import {
-  addComment,
-  addReplyOnComment,
-  dislike,
-  getprojectDetailsById,
-  likeOnComment,
-  likeOnReply,
-} from "@/state/slices/projectSlice/slice"
-import type { Comment } from "@/state/slices/projectSlice/details"
+  useAddComment,
+  useAddReply,
+  useDislikeComment,
+  useLikeComment,
+  useLikeReply,
+} from "@/hooks/mutations/useProjectMutations"
+import type { Comment } from "../types"
 import { socket } from "@/App"
 import { useAuthContext } from "@/context/authContext"
 
 export const useProjectDetailsPage = () => {
   const { id } = useParams<{ id: string }>()
-  const dispatch = useAppDispatch()
   const { toast } = useToast()
   const navigate = useNavigate()
   const { isAuthenticated } = useAuthContext()
-  const { projectDetails, isLoading } = useAppSelector((state) => state.project)
+  
+  const { data: projectDetails, isLoading } = useProjectDetails(id || "")
+  const addCommentMutation = useAddComment()
+  const addReplyMutation = useAddReply()
+  const likeCommentMutation = useLikeComment()
+  const likeReplyMutation = useLikeReply()
+  const dislikeMutation = useDislikeComment()
 
   const [newComment, setNewComment] = useState("")
   const [activeSection, setActiveSection] = useState("overview")
@@ -33,19 +37,6 @@ export const useProjectDetailsPage = () => {
     }
     setActiveSection(sectionId)
   }, [])
-
-  useEffect(() => {
-    if (!id) return
-
-    dispatch(getprojectDetailsById(id))
-      .unwrap()
-      .then(() => {
-        toast({ title: "Project details fetched successfully" })
-      })
-      .catch((error) => {
-        toast({ title: error, variant: "destructive" })
-      })
-  }, [id, dispatch, toast])
 
   useEffect(() => {
     const handleNewComment = ({
@@ -180,13 +171,23 @@ export const useProjectDetailsPage = () => {
     }
 
     if (id) {
-      dispatch(addComment({ comment: newComment, projectId: id }))
-        .unwrap()
-        .catch((error) => {
-          toast({ title: error, variant: "destructive" })
-        })
+      addCommentMutation.mutate(
+        { projectId: id, comment: newComment },
+        {
+          onSuccess: () => {
+            setNewComment("")
+          },
+          onError: (error) => {
+            toast({
+              title: "Failed to add comment",
+              description: error instanceof Error ? error.message : "Unknown error",
+              variant: "destructive",
+            })
+          },
+        }
+      )
     }
-  }, [dispatch, id, isAuthenticated, navigate, newComment, toast])
+  }, [id, isAuthenticated, navigate, newComment, toast, addCommentMutation])
 
   const handleReply = useCallback(
     (commentId: string, replyText: string) => {
@@ -197,14 +198,21 @@ export const useProjectDetailsPage = () => {
       }
 
       if (id) {
-        dispatch(addReplyOnComment({ commentId, replyText, projectId: id }))
-          .unwrap()
-          .catch((error) => {
-            toast({ title: error, variant: "destructive" })
-          })
+        addReplyMutation.mutate(
+          { projectId: id, commentId, replyText },
+          {
+            onError: (error) => {
+              toast({
+                title: "Failed to add reply",
+                description: error instanceof Error ? error.message : "Unknown error",
+                variant: "destructive",
+              })
+            },
+          }
+        )
       }
     },
-    [dispatch, id, isAuthenticated, navigate, toast]
+    [id, isAuthenticated, navigate, toast, addReplyMutation]
   )
 
   const handleReplyLikeUnlike = useCallback(
@@ -216,14 +224,21 @@ export const useProjectDetailsPage = () => {
       }
 
       if (id) {
-        dispatch(likeOnReply({ commentId, replyId, projectId: id }))
-          .unwrap()
-          .catch((error) => {
-            toast({ title: error, variant: "destructive" })
-          })
+        likeReplyMutation.mutate(
+          { projectId: id, commentId, replyId },
+          {
+            onError: (error) => {
+              toast({
+                title: "Failed to like reply",
+                description: error instanceof Error ? error.message : "Unknown error",
+                variant: "destructive",
+              })
+            },
+          }
+        )
       }
     },
-    [dispatch, id, isAuthenticated, navigate, toast]
+    [id, isAuthenticated, navigate, toast, likeReplyMutation]
   )
 
   const handleLike = useCallback(
@@ -235,14 +250,21 @@ export const useProjectDetailsPage = () => {
       }
 
       if (id) {
-        dispatch(likeOnComment({ projectId: id, commentId }))
-          .unwrap()
-          .catch((error) => {
-            toast({ title: error, variant: "destructive" })
-          })
+        likeCommentMutation.mutate(
+          { projectId: id, commentId },
+          {
+            onError: (error) => {
+              toast({
+                title: "Failed to like comment",
+                description: error instanceof Error ? error.message : "Unknown error",
+                variant: "destructive",
+              })
+            },
+          }
+        )
       }
     },
-    [dispatch, id, isAuthenticated, navigate, toast]
+    [id, isAuthenticated, navigate, toast, likeCommentMutation]
   )
 
   const handleDislike = useCallback(
@@ -254,14 +276,21 @@ export const useProjectDetailsPage = () => {
       }
 
       if (id) {
-        dispatch(dislike({ commentId, projectId: id }))
-          .unwrap()
-          .catch((error) => {
-            toast({ title: error, variant: "destructive" })
-          })
+        dislikeMutation.mutate(
+          { projectId: id, commentId },
+          {
+            onError: (error) => {
+              toast({
+                title: "Failed to dislike comment",
+                description: error instanceof Error ? error.message : "Unknown error",
+                variant: "destructive",
+              })
+            },
+          }
+        )
       }
     },
-    [dispatch, id, isAuthenticated, navigate, toast]
+    [id, isAuthenticated, navigate, toast, dislikeMutation]
   )
 
   const handleEdit = useCallback((commentId: string, newText: string) => {
